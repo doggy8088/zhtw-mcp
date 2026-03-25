@@ -1316,6 +1316,7 @@
       "context": "限數學語境。「函式」是程式設計用語，數學中應用「函數」(@seealso 函數)",
       "english": "function (math)",
       "context_clues": ["sin", "cos", "tan", "log", "ln", "exp", "微積分", "導數", "積分", "極限", "收斂", "可微", "數學", "方程式", "方程", "三角", "指數", "對數", "多項式", "線性代數"],
+      "positional_clues": ["not_after:程式", "not_after:呼叫", "not_after:回呼", "not_after:匿名"],
       "exceptions": ["函式庫", "程式庫函式", "函式模板", "函式範本", "函式物件", "仿函式", "行內函式", "函式呼叫", "回呼函式", "匿名函式", "虛擬函式", "純虛擬函式", "函式指標", "函式簽名", "建構函式", "解構函式", "成員函式", "函式多載", "函式原型"]
     },
     {
@@ -4438,7 +4439,9 @@
       "to": ["最關鍵", "最主要"],
       "type": "confusable",
       "context": "「核心」保留給 kernel (OS/ML)；形容詞用「關鍵」或「主要」避免語意混淆",
-      "english": "most critical / most core"
+      "english": "most critical / most core",
+      "context_clues": ["程式", "軟體", "系統", "模組", "架構", "演算法"],
+      "positional_clues": ["not_after:kernel", "not_after:Linux"]
     },
     {
       "from": "最終用戶",
@@ -4568,14 +4571,18 @@
       "type": "confusable",
       "context": "避免混用 kernel (核心) 和 core (關鍵)；除非指 kernel feature",
       "english": "core function / key feature",
-      "negative_context_clues": ["kernel", "Linux 核心", "核心模組", "核心空間"]
+      "context_clues": ["程式", "軟體", "系統", "模組", "架構", "演算法"],
+      "negative_context_clues": ["kernel", "Linux 核心", "核心模組", "核心空間"],
+      "positional_clues": ["not_after:kernel", "not_after:Linux"]
     },
     {
       "from": "核心問題",
       "to": ["關鍵問題"],
       "type": "confusable",
       "context": "避免混用 kernel (核心) 和 core (關鍵)",
-      "english": "core issue / key issue"
+      "english": "core issue / key issue",
+      "context_clues": ["程式", "軟體", "系統", "模組", "架構", "演算法"],
+      "positional_clues": ["not_after:kernel", "not_after:Linux"]
     },
     {
       "from": "核心映象",
@@ -4619,7 +4626,9 @@
       "to": ["關鍵邏輯", "主要邏輯"],
       "type": "confusable",
       "context": "避免混用 kernel (核心) 和 core (關鍵)",
-      "english": "core logic"
+      "english": "core logic",
+      "context_clues": ["程式", "軟體", "系統", "模組", "架構", "演算法"],
+      "positional_clues": ["not_after:kernel", "not_after:Linux"]
     },
     {
       "from": "格林納達",
@@ -7243,7 +7252,9 @@
       "to": ["呼叫"],
       "type": "cross_strait",
       "context": "@domain 通訊。cn 調用 = call/invoke；tw 用「呼叫」(程式)、「調閱」(法律)、「調派」(行政)",
-      "english": "call/invoke"
+      "english": "call/invoke",
+      "context_clues": ["函式", "函數", "API", "程式", "方法", "介面"],
+      "positional_clues": ["not_after:法院", "not_after:調閱"]
     },
     {
       "from": "調用操作符",
@@ -8269,7 +8280,8 @@
       "type": "cross_strait",
       "context": "@domain IT。限軟體開發語境。cn 以「項目」表示 project，tw 用「專案」；「項目」作為 item/品項時為正確 tw 用法",
       "english": "project",
-      "context_clues": ["開發", "部署", "版本", "軟體", "軟件", "程式碼", "代碼", "工程", "建置", "維護"]
+      "context_clues": ["開發", "部署", "版本", "軟體", "軟件", "程式碼", "代碼", "工程", "建置", "維護"],
+      "positional_clues": ["not_after:個", "not_after:各", "not_after:每"]
     },
     {
       "from": "項目管理",

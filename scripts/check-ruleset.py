@@ -54,6 +54,7 @@ KNOWN_SPELLING_FIELDS = {
     "exceptions",
     "context_clues",
     "negative_context_clues",
+    "positional_clues",
     "tags",
 }
 
@@ -67,6 +68,7 @@ SPELLING_FIELD_ORDER = [
     "english",
     "context_clues",
     "negative_context_clues",
+    "positional_clues",
     "exceptions",
     "tags",
 ]
@@ -620,6 +622,36 @@ def detect_conflicts(spelling_rules: list[dict[str, Any]]) -> list[str]:
         unknown = set(rule.keys()) - KNOWN_SPELLING_FIELDS
         if unknown:
             warnings.append(f'schema: "{frm}" has unknown fields: {sorted(unknown)}')
+        # Validate positional_clues syntax (operator:term).
+        VALID_POSITIONAL_OPS = (
+            "before:",
+            "after:",
+            "adjacent:",
+            "not_before:",
+            "not_after:",
+        )
+        pc = rule.get("positional_clues")
+        if pc is not None and not isinstance(pc, list):
+            warnings.append(
+                f'schema: "{frm}" positional_clues must be a list, got {type(pc).__name__}'
+            )
+            pc = []
+        for clue in pc or []:
+            if not isinstance(clue, str):
+                warnings.append(
+                    f'schema: "{frm}" positional_clue entries must be strings, '
+                    f"got {type(clue).__name__}"
+                )
+                continue
+            if not any(
+                clue.startswith(op) and len(clue) > len(op)
+                for op in VALID_POSITIONAL_OPS
+            ):
+                warnings.append(
+                    f'schema: "{frm}" has invalid positional_clue "{clue}" '
+                    f"(must be operator:term, operators: "
+                    f"{', '.join(op.rstrip(':') for op in VALID_POSITIONAL_OPS)})"
+                )
 
     # 8. Compound suffix preservation: when a longer rule A contains a
     #    shorter rule B as prefix, AND both produce the same prefix in
