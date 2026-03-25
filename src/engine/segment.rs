@@ -317,6 +317,23 @@ impl Segmenter {
     ///
     /// Cost: O(L^2) dictionary lookups where L = max_word_len (typically <= 10).
     pub fn word_straddles_boundary(&self, text: &str, boundary: usize) -> bool {
+        self.word_straddles_boundary_with_limit(text, boundary, None)
+    }
+
+    /// Like `word_straddles_boundary`, but only considers dictionary words
+    /// whose start position is strictly before `no_walk_after`.  When checking
+    /// the *end* boundary of a match, pass `Some(match_start)` as `no_walk_after`
+    /// so that dictionary words beginning inside the match (e.g. "目的"
+    /// overlapping the end of "項目") are ignored — they represent a
+    /// different segmentation, not a boundary violation.
+    ///
+    /// Pass `None` to disable the limit (equivalent to `word_straddles_boundary`).
+    pub fn word_straddles_boundary_with_limit(
+        &self,
+        text: &str,
+        boundary: usize,
+        no_walk_after: Option<usize>,
+    ) -> bool {
         use super::scan::is_cjk_ideograph;
 
         if boundary > text.len() || !text.is_char_boundary(boundary) {
@@ -350,19 +367,30 @@ impl Segmenter {
             return false;
         }
 
-        self.word_straddles_boundary_inner(text, boundary)
+        self.word_straddles_boundary_inner(text, boundary, no_walk_after)
     }
 
     /// Check whether a known dictionary word straddles either edge of the
     /// byte range [start, end).  Combined check avoids two separate function
-    /// calls for the same match span.
+    /// calls for the same match span.  For the end boundary, dictionary words
+    /// starting inside the match are ignored (see `word_straddles_boundary_with_limit`).
     pub fn match_straddles_word_boundary(&self, text: &str, start: usize, end: usize) -> bool {
-        self.word_straddles_boundary(text, start) || self.word_straddles_boundary(text, end)
+        self.word_straddles_boundary(text, start)
+            || self.word_straddles_boundary_with_limit(text, end, Some(start))
     }
 
     /// Inner implementation of boundary straddling check, called after
     /// the fast CJK guard has confirmed both sides are CJK.
-    fn word_straddles_boundary_inner(&self, text: &str, boundary: usize) -> bool {
+    ///
+    /// `no_walk_after`: if `Some(offset)`, skip candidate start positions at
+    /// or after this byte offset.  Used when checking the end boundary of a
+    /// match to ignore dictionary words starting inside the match span.
+    fn word_straddles_boundary_inner(
+        &self,
+        text: &str,
+        boundary: usize,
+        no_walk_after: Option<usize>,
+    ) -> bool {
         use super::scan::is_cjk_ideograph;
 
         let max_back = self.max_word_len.saturating_sub(1);
@@ -380,6 +408,15 @@ impl Segmenter {
                 break;
             }
             pos = text.floor_char_boundary(pos - 1);
+            // Skip start positions strictly inside the match span — words
+            // starting there are not external boundary violations.  Still
+            // consider a candidate that starts exactly at the match start,
+            // because a longer dictionary word may extend past the right edge.
+            if let Some(limit) = no_walk_after {
+                if pos > limit {
+                    continue;
+                }
+            }
             let ch = text[pos..].chars().next().unwrap();
             if !is_cjk_ideograph(ch) {
                 break;
@@ -556,7 +593,7 @@ static GENERAL_VOCAB: &[&str] = &[
     "最後", "進而", "從而",
     // Academic / technical prose (word-boundary disambiguation)
     "累積", "引導", "分佈", "序列", "函數", "變數", "模型", "估計", "觀測", "假設", "推導", "證明",
-    "收斂", "機率", "隨機", "樣本", "頻率", "密度", "偏差", "變異",
+    "收斂", "機率", "隨機", "樣本", "頻率", "密度", "偏差", "變異", "差分", "形式", "排程",
 ];
 
 /// Common Chinese function words and particles used to help segmentation.
@@ -1092,6 +1129,22 @@ mod tests {
         assert!(
             !seg.word_straddles_boundary(text, boundary_right),
             "no dict word should straddle between 積分 and 兌換"
+        );
+    }
+
+    #[test]
+    fn end_boundary_limit_still_considers_words_starting_at_match_start() {
+        // The end-boundary limiter should ignore dictionary words that start
+        // strictly inside the match, but it must still catch a longer word
+        // that begins exactly at the match start and extends past the match.
+        let seg = Segmenter::new(["項目管理"].iter().map(|s| s.to_string()));
+        let text = "項目管理流程";
+        let start = 0;
+        let end = "項目".len();
+
+        assert!(
+            seg.word_straddles_boundary_with_limit(text, end, Some(start)),
+            "項目管理 should straddle the end boundary of 項目"
         );
     }
 }

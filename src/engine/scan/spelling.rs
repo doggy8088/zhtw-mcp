@@ -177,12 +177,18 @@ impl Scanner {
 
         // Word-boundary check: skip if a dictionary word straddles the
         // match edge (e.g. "積分" inside "累積分佈").  Memoized per offset.
+        //
+        // Start boundary: unrestricted (no limit).
+        // End boundary: only consider dict words starting before match_start,
+        // so words beginning inside the match (e.g. "目的" at end of "項目")
+        // don't falsely suppress the match.  Not cached because the result
+        // depends on both `end` and `start`.
         let straddles_start = *boundary_cache
             .entry(start)
             .or_insert_with(|| self.segmenter.word_straddles_boundary(text, start));
-        let straddles_end = *boundary_cache
-            .entry(end)
-            .or_insert_with(|| self.segmenter.word_straddles_boundary(text, end));
+        let straddles_end =
+            self.segmenter
+                .word_straddles_boundary_with_limit(text, end, Some(start));
         if straddles_start || straddles_end {
             return;
         }
