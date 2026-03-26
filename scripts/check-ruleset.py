@@ -438,10 +438,15 @@ VALID_DOMAINS = {
 VALID_GEO_TYPES = {"country", "city", "landmark", "university"}
 
 
-def detect_conflicts(spelling_rules: list[dict[str, Any]]) -> list[str]:
+def detect_conflicts(
+    spelling_rules: list[dict[str, Any]],
+) -> tuple[list[str], list[str]]:
     """Detect semantic conflicts between spelling rules.
 
-    Skips disabled rules.  Returns a list of warning strings for:
+    Skips disabled rules.  Returns (errors, advisories) where errors fail
+    --lint and advisories are printed but do not cause failure.
+
+    Errors (checks 1-13, 17-20):
     1.  Circular mappings (to of rule A is from of rule B)
     2.  Empty to without english fallback
     3.  Variant rule invariants (single non-empty to)
@@ -458,7 +463,15 @@ def detect_conflicts(spelling_rules: list[dict[str, Any]]) -> list[str]:
     11. Annotation validation (@domain/@geo tag format and coverage)
     12. Redundant domain constraint (限X語境 duplicates @domain X)
     13. Ungated domain constraint (限...語境 without context_clues/exceptions)
-    14. ai_filler trailing punctuation (scanner handles it automatically)
+    17. ai_filler trailing punctuation (scanner handles it automatically)
+    18. Negative/positive clue substring overlap (suppression bug)
+    19. Exception validity (exception must contain from as substring)
+    20. Contradictory positional clues (before + not_before on same term)
+
+    Advisories (checks 14-16, informational only):
+    14. context_clues / negative_context_clues length convention (<=6 chars)
+    15. Missing english field on cross_strait / confusable / typo rules
+    16. Missing context field on cross_strait / confusable / typo / political_coloring rules
     """
     warnings: list[str] = []
 
@@ -892,7 +905,114 @@ def detect_conflicts(spelling_rules: list[dict[str, Any]]) -> list[str]:
                 f"but has no context_clues or exceptions"
             )
 
-    # 14. ai_filler trailing punctuation: the scanner extends deletion
+    # 18. Negative clue contained in positive clue: if a negative clue is
+    #     a substring of a positive clue, then whenever the positive clue
+    #     matches in text, the negative clue also matches (overlapping AC),
+    #     and the negative veto kills the positive gate entirely.
+    #
+    #     The reverse (positive substring of negative) is intentional:
+    #     the longer negative phrase is a more-specific context that
+    #     should suppress the broader positive trigger.
+    for rule in from_set.values():
+        frm = rule["from"]
+        pos = rule.get("context_clues") or []
+        neg = rule.get("negative_context_clues") or []
+        if not isinstance(pos, list) or not isinstance(neg, list):
+            continue
+        for n in neg:
+            for p in pos:
+                if not isinstance(n, str) or not isinstance(p, str):
+                    continue
+                if n in p:
+                    # neg is substring of pos: pos match always triggers neg
+                    warnings.append(
+                        f'clue-neg-in-pos: "{frm}" neg_clue "{n}" is '
+                        f'substring of pos_clue "{p}" (pos is always '
+                        f"suppressed)"
+                    )
+
+    # 19. Exception validity: each exception string must contain the rule's
+    #     from as a substring (otherwise the exception can never match).
+    for rule in from_set.values():
+        frm = rule["from"]
+        for exc in rule.get("exceptions", []):
+            if not isinstance(exc, str):
+                continue
+            if frm not in exc:
+                warnings.append(
+                    f'exception-invalid: "{frm}" exception "{exc}" '
+                    f"does not contain from (can never match)"
+                )
+
+    # 20. Contradictory positional clues: before:X + not_before:X on the
+    #     same rule is a logical contradiction (rule can never fire).
+    for rule in from_set.values():
+        frm = rule["from"]
+        pcs = rule.get("positional_clues") or []
+        if not isinstance(pcs, list):
+            continue
+        by_op: dict[str, set[str]] = {}
+        for pc in pcs:
+            if not isinstance(pc, str) or ":" not in pc:
+                continue
+            op, term = pc.split(":", 1)
+            by_op.setdefault(op, set()).add(term)
+        for pos_op, neg_op in [("before", "not_before"), ("after", "not_after")]:
+            overlap = by_op.get(pos_op, set()) & by_op.get(neg_op, set())
+            if overlap:
+                warnings.append(
+                    f'positional-contradiction: "{frm}" has both '
+                    f"{pos_op} and {neg_op} for: {sorted(overlap)}"
+                )
+
+    # --- Advisory checks (14-16, 21): informational, do not fail --lint ---
+    advisories: list[str] = []
+
+    # 14. context_clues / negative_context_clues length convention.
+    #     CLAUDE.md says context_clues <= 6 chars.  Longer clues still work
+    #     but waste AC automaton budget and are harder to match in the
+    #     40-char context window.
+    MAX_CLUE_CHARS = 6
+    for rule in from_set.values():
+        frm = rule["from"]
+        for field in ("context_clues", "negative_context_clues"):
+            clues = rule.get(field)
+            if not isinstance(clues, list):
+                continue  # malformed; already caught by check 9
+            for clue in clues:
+                if not isinstance(clue, str):
+                    continue  # malformed; already caught by check 9
+                if len(clue) > MAX_CLUE_CHARS:
+                    advisories.append(
+                        f'clue-length: "{frm}" {field} entry '
+                        f'"{clue}" is {len(clue)} chars (max {MAX_CLUE_CHARS})'
+                    )
+
+    # 15. Missing english field on cross_strait / confusable / typo rules.
+    #     variant (single-char 異體字), ai_filler, and political_coloring
+    #     rules are exempt — they either have no English equivalent or serve
+    #     a non-translation purpose.
+    for rule in from_set.values():
+        rtype = rule.get("type", "")
+        if rtype in ("variant", "ai_filler", "political_coloring"):
+            continue
+        if not rule.get("english"):
+            advisories.append(
+                f'missing-english: "{rule["from"]}" ({rtype}) has no english field'
+            )
+
+    # 16. Missing context field on cross_strait / confusable / typo rules.
+    #     variant, ai_filler, and political_coloring rules are exempt.
+    for rule in from_set.values():
+        rtype = rule.get("type", "")
+        if rtype in ("variant", "ai_filler", "political_coloring"):
+            continue
+        if not rule.get("context"):
+            advisories.append(
+                f'missing-context: "{rule["from"]}" ({rtype}) has no context field'
+            )
+
+    # 17. ai_filler trailing punctuation: the scanner extends deletion
     #     spans (is_deletion_rule: to == [""]) to consume trailing ，/：
     #     automatically.  Separate rules for phrase+punctuation variants
     #     are redundant only when the base rule is a deletion rule.
@@ -919,7 +1039,7 @@ def detect_conflicts(spelling_rules: list[dict[str, Any]]) -> list[str]:
                     f"auto-consumes trailing {punct}"
                 )
 
-    return warnings
+    return warnings, advisories
 
 
 def default_path() -> Path:
@@ -973,10 +1093,14 @@ def main() -> int:
     removed = (orig_spelling - new_spelling) + (orig_case - new_case)
 
     # Detect semantic conflicts in spelling rules.
-    conflicts = detect_conflicts(data["spelling_rules"])
+    conflicts, advisories = detect_conflicts(data["spelling_rules"])
     if conflicts:
         print(f"conflicts ({len(conflicts)}):", file=sys.stderr)
         for w in conflicts:
+            print(f"  {w}", file=sys.stderr)
+    if advisories and args.lint:
+        print(f"advisories ({len(advisories)}):", file=sys.stderr)
+        for w in advisories:
             print(f"  {w}", file=sys.stderr)
 
     # Online verification (opt-in).
