@@ -557,7 +557,11 @@ fn cli_lint_compact_format_clean_is_empty() {
 #[test]
 fn cli_lint_compact_format_dedup() {
     // 5 identical 視頻 issues should deduplicate to one line with ×N.
-    let output = run_lint_stdin(&["--format", "compact"], "視頻、視頻、視頻、視頻、視頻");
+    // 視頻 is confusable and needs a context clue (e.g. 平台) to fire.
+    let output = run_lint_stdin(
+        &["--format", "compact"],
+        "平台上的視頻、視頻、視頻、視頻、視頻",
+    );
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
         stdout.contains("\u{00d7}") || stdout.contains("×"),
@@ -575,7 +579,8 @@ fn cli_lint_compact_format_dedup() {
 #[test]
 fn cli_lint_compact_format_suggestion_plus_n() {
     // 視頻 has 3 suggestions: 影片, 影音, 視訊 → compact shows 影片+2
-    let output = run_lint_stdin(&["--format", "compact"], "這個視頻");
+    // 視頻 is confusable and needs a context clue (e.g. 串流) to fire.
+    let output = run_lint_stdin(&["--format", "compact"], "串流視頻");
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
         stdout.contains("+2"),
@@ -630,7 +635,7 @@ fn cli_lint_compact_format_includes_path_single_file() {
 fn cli_lint_compact_token_reduction_vs_human() {
     // Gate: ≥40% token reduction vs human default.
     // Approximate tokens by character count (reasonable proxy for CJK+ASCII mix).
-    let input = "這個軟件使用了視頻功能，視頻品質不錯。並行計算很快。";
+    let input = "這個軟件使用了串流視頻功能，串流視頻品質不錯。並行計算很快。";
     let human_output = run_lint_stdin(&["--format", "human"], input);
     let compact_output = run_lint_stdin(&["--format", "compact"], input);
     let human_len = String::from_utf8_lossy(&human_output.stderr).len();

@@ -214,7 +214,7 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。tw: 並行=concurrency, 平行=parallelism。僅在 parallelism 語境替換",
       "english": "parallelism",
-      "context_clues": ["多核", "多處理器", "GPU", "SIMD", "MIMD", "加速", "throughput", "向量化"],
+      "context_clues": ["多核", "多處理器", "GPU", "SIMD", "MIMD", "加速", "吞吐量", "向量化"],
       "exceptions": ["並行任務"]
     },
     {
@@ -223,8 +223,8 @@
       "type": "cross_strait",
       "context": "tw: 平行=parallelism；僅在 parallelism 語境替換 (@seealso 並行)",
       "english": "parallel execution",
-      "context_clues": ["多核", "多處理器", "GPU", "SIMD", "MIMD", "加速", "throughput", "向量化"],
-      "negative_context_clues": ["並發", "concurrent", "concurrency"]
+      "context_clues": ["多核", "多處理器", "GPU", "SIMD", "MIMD", "加速", "吞吐量", "向量化"],
+      "negative_context_clues": ["並發"]
     },
     {
       "from": "並行計算",
@@ -239,6 +239,14 @@
       "type": "cross_strait",
       "context": "@domain 資料結構",
       "english": "union (set theory)"
+    },
+    {
+      "from": "中微子",
+      "to": ["微中子"],
+      "type": "cross_strait",
+      "context": "@domain 科學。cn 中微子 = tw 微中子 (neutrino)",
+      "english": "neutrino",
+      "context_clues": ["粒子", "物理", "衰變", "質量", "振盪", "費米", "弱交互作用", "輻射"]
     },
     {
       "from": "中間件",
@@ -290,6 +298,14 @@
       "english": "main thread"
     },
     {
+      "from": "主頁",
+      "to": ["首頁"],
+      "type": "cross_strait",
+      "context": "@domain IT。限網站語境，社群媒體 profile page 不適用",
+      "english": "homepage",
+      "context_clues": ["網站", "瀏覽器", "網頁", "URL", "連結"]
+    },
+    {
       "from": "乍得",
       "to": ["查德"],
       "type": "cross_strait",
@@ -300,6 +316,7 @@
       "from": "乞業",
       "to": ["企業"],
       "type": "typo",
+      "context": "常見 OCR/輸入法錯字",
       "english": "enterprise (typo)"
     },
     {
@@ -315,7 +332,7 @@
       "type": "cross_strait",
       "context": "@domain 資料庫。一般用法「事務」(affairs) 為正確 tw 用法",
       "english": "transaction",
-      "context_clues": ["資料庫", "SQL", "commit", "rollback", "ACID", "交易"]
+      "context_clues": ["資料庫", "SQL", "commit", "回滾", "ACID", "交易"]
     },
     {
       "from": "二元操作符",
@@ -338,6 +355,13 @@
       "type": "cross_strait",
       "context": "@domain 資料結構",
       "english": "binary tree"
+    },
+    {
+      "from": "二手房",
+      "to": ["中古屋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "pre-owned house"
     },
     {
       "from": "二極管",
@@ -448,6 +472,13 @@
       "type": "cross_strait",
       "context": "@domain 資安。區分驗證/授權、加密貨幣、NLP 分詞 (tokenization) 等不同語境",
       "english": "token"
+    },
+    {
+      "from": "令牌環",
+      "to": [],
+      "type": "cross_strait",
+      "context": "@domain 網路。IEEE 802.5 token ring 不應意譯，tw 直接使用英文 token ring",
+      "english": "token ring"
     },
     {
       "from": "以太",
@@ -677,6 +708,13 @@
       "english": "save"
     },
     {
+      "from": "保育員",
+      "to": ["保姆"],
+      "type": "cross_strait",
+      "context": "@domain 日常。cn 保育員 = tw 保姆 (childcare worker)",
+      "english": "nanny/babysitter"
+    },
+    {
       "from": "保質期",
       "to": ["保存期限"],
       "type": "cross_strait",
@@ -748,6 +786,13 @@
       "context": "@domain 程式設計",
       "english": "modifier",
       "context_clues": ["class", "public", "程式碼", "宣告", "類別"]
+    },
+    {
+      "from": "俯臥撑",
+      "to": ["伏地挺身"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "push-up"
     },
     {
       "from": "倉庫",
@@ -1107,7 +1152,7 @@
       "type": "cross_strait",
       "context": "@domain 作業系統。限 IT 語境。天文領域也有「內核」，但指 inner core",
       "english": "kernel",
-      "context_clues": ["Linux", "Windows", "Android", "作業系統", "驅動", "系統呼叫", "核心模組", "OS"],
+      "context_clues": ["Linux", "視窗", "安卓", "作業系統", "驅動", "系統呼叫", "核心模組", "OS"],
       "exceptions": ["地球內核", "行星內核"]
     },
     {
@@ -1538,6 +1583,13 @@
       "english": "burn (disc)"
     },
     {
+      "from": "刻錄機",
+      "to": ["燒錄機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "disc burner"
+    },
+    {
       "from": "剃鬚刀",
       "to": ["刮鬍刀"],
       "type": "cross_strait",
@@ -1592,6 +1644,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "adhesive bandage"
+    },
+    {
+      "from": "創可貼",
+      "to": ["OK繃"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "band-aid/adhesive bandage"
     },
     {
       "from": "創建",
@@ -1671,6 +1730,13 @@
       "type": "cross_strait",
       "context": "@domain 電商",
       "english": "free shipping"
+    },
+    {
+      "from": "包間",
+      "to": ["包廂"],
+      "type": "cross_strait",
+      "context": "@domain 日常。cn 包間 = tw 包廂 (private room in restaurant/KTV)",
+      "english": "private room/booth"
     },
     {
       "from": "匯編",
@@ -1771,7 +1837,7 @@
       "type": "cross_strait",
       "context": "限 JIT 編譯語境; 即時通訊/即時系統中的「即時」不應改為「及時」(@seealso 實時)",
       "english": "just-in-time/in-time",
-      "context_clues": ["JIT", "編譯", "compiler"]
+      "context_clues": ["JIT", "編譯"]
     },
     {
       "from": "卸載",
@@ -1779,7 +1845,7 @@
       "type": "cross_strait",
       "context": "@domain IT。完整移除軟體 (uninstall) vs 移除某個元件/項目 (remove)",
       "english": "uninstall",
-      "negative_context_clues": ["掛載", "mount", "umount", "unmount", "檔案系統", "分割區"]
+      "negative_context_clues": ["掛載", "mount", "umount", "檔案系統", "分割區"]
     },
     {
       "from": "厄瓜多爾",
@@ -1814,6 +1880,7 @@
       "to": ["原始程式碼"],
       "type": "cross_strait",
       "context": "@domain IT。tw 標準用語為「原始程式碼」(source code)",
+      "english": "source code",
       "exceptions": ["開放原始碼"]
     },
     {
@@ -2082,6 +2149,14 @@
       "context_clues": ["呼吸", "過敏", "症狀", "治療"]
     },
     {
+      "from": "唧筒",
+      "to": ["幫浦"],
+      "type": "cross_strait",
+      "context": "@domain 日常。cn 唧筒 = tw 幫浦 (pump)",
+      "english": "pump",
+      "context_clues": ["水", "液體", "壓力", "抽", "管路", "流量"]
+    },
+    {
       "from": "啓",
       "to": ["啟"],
       "type": "variant",
@@ -2188,6 +2263,13 @@
       "english": "Enter key/carriage return"
     },
     {
+      "from": "回車鍵",
+      "to": ["Enter 鍵", "輸入鍵"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Enter key/Return key"
+    },
+    {
       "from": "因此我們可以看到",
       "to": ["因此"],
       "type": "ai_filler",
@@ -2206,6 +2288,13 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "SSD (solid-state drive)"
+    },
+    {
+      "from": "國際象棋",
+      "to": ["西洋棋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "chess"
     },
     {
       "from": "圓括弧",
@@ -2395,6 +2484,13 @@
       "type": "cross_strait",
       "context": "@domain 教育",
       "english": "training"
+    },
+    {
+      "from": "基因組",
+      "to": ["基因體"],
+      "type": "cross_strait",
+      "context": "@domain 生物學。例：中央研究院基因體研究中心",
+      "english": "genome"
     },
     {
       "from": "基帶",
@@ -2805,6 +2901,13 @@
       "english": "memory card"
     },
     {
+      "from": "存儲器",
+      "to": ["記憶體"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "memory/storage"
+    },
+    {
       "from": "存儲過程",
       "to": ["預存程序"],
       "type": "cross_strait",
@@ -2861,7 +2964,7 @@
       "type": "cross_strait",
       "context": "@domain 資安",
       "english": "security audit",
-      "context_clues": ["安全", "漏洞", "稽核", "合規"]
+      "context_clues": ["漏洞", "稽核", "合規"]
     },
     {
       "from": "安卓",
@@ -2883,7 +2986,7 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "installer/package",
-      "context_clues": ["下載", "安裝", "軟體", "APP"]
+      "context_clues": ["下載", "軟體", "APP"]
     },
     {
       "from": "宏",
@@ -2927,7 +3030,7 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。限 CPU/硬體語境。cash register 翻譯為「收銀機」，不適用本規則",
       "english": "register",
-      "context_clues": ["CPU", "處理器", "指令", "記憶體", "架構", "組合語言", "assembly", "ALU", "暫存"]
+      "context_clues": ["CPU", "處理器", "指令", "記憶體", "架構", "組合語言", "組譯", "ALU", "暫存"]
     },
     {
       "from": "密鑰",
@@ -3193,6 +3296,13 @@
       "english": "hierarchy"
     },
     {
+      "from": "山地車",
+      "to": ["登山車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "mountain bike"
+    },
+    {
       "from": "岡比亞",
       "to": ["甘比亞"],
       "type": "cross_strait",
@@ -3439,6 +3549,13 @@
       "english": "assembly language"
     },
     {
+      "from": "彩票",
+      "to": ["彩券"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "lottery ticket"
+    },
+    {
       "from": "後台進程",
       "to": ["背景程式", "背景行程"],
       "type": "cross_strait",
@@ -3464,7 +3581,7 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "secondary node",
-      "context_clues": ["主節點", "叢集", "複製", "節點"]
+      "context_clues": ["主節點", "叢集", "複製"]
     },
     {
       "from": "循環",
@@ -3661,6 +3778,13 @@
       "english": "manual transmission"
     },
     {
+      "from": "手扶電梯",
+      "to": ["電扶梯"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "escalator"
+    },
+    {
       "from": "手電",
       "to": ["手電筒"],
       "type": "cross_strait",
@@ -3716,6 +3840,20 @@
       "type": "cross_strait",
       "context": "@domain 醫學",
       "english": "depression"
+    },
+    {
+      "from": "投影儀",
+      "to": ["投影機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "projector"
+    },
+    {
+      "from": "投資回報率",
+      "to": ["投資報酬率"],
+      "type": "cross_strait",
+      "context": "@domain 金融",
+      "english": "return on investment (ROI)"
     },
     {
       "from": "抖色",
@@ -3806,12 +3944,19 @@
       "english": "pass by reference"
     },
     {
+      "from": "挖掘機",
+      "to": ["挖土機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "excavator"
+    },
+    {
       "from": "捕獲",
       "to": ["抓取"],
       "type": "cross_strait",
       "context": "@domain 程式設計。依 MoE 辭典，「捕獲」指捉拿人犯或動物。程式設計中 catch (exception) 應譯「抓取」，避免濫用",
       "english": "catch (exception)",
-      "context_clues": ["例外", "異常", "exception", "try", "catch", "throw", "錯誤處理", "error", "拋出", "丟出"]
+      "context_clues": ["例外", "異常", "try", "catch", "throw", "錯誤處理", "error", "拋出", "丟出"]
     },
     {
       "from": "捲積",
@@ -3869,7 +4014,7 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。限程式設計/IT 語境",
       "english": "console",
-      "context_clues": ["程式", "程序", "終端", "命令", "console", "terminal"]
+      "context_clues": ["程式", "程序", "終端", "命令", "主控台"]
     },
     {
       "from": "控制面板",
@@ -3877,7 +4022,7 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "control panel",
-      "context_clues": ["Windows", "設定", "系統", "管理"]
+      "context_clues": ["視窗", "設定", "系統", "管理"]
     },
     {
       "from": "推遲",
@@ -4168,6 +4313,13 @@
       "type": "cross_strait",
       "context": "@domain 電子",
       "english": "digital"
+    },
+    {
+      "from": "數碼相機",
+      "to": ["數位相機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "digital camera"
     },
     {
       "from": "數組",
@@ -4572,7 +4724,7 @@
       "context": "避免混用 kernel (核心) 和 core (關鍵)；除非指 kernel feature",
       "english": "core function / key feature",
       "context_clues": ["程式", "軟體", "系統", "模組", "架構", "演算法"],
-      "negative_context_clues": ["kernel", "Linux 核心", "核心模組", "核心空間"],
+      "negative_context_clues": ["kernel", "核心", "核心模組", "核心空間"],
       "positional_clues": ["not_after:kernel", "not_after:Linux"]
     },
     {
@@ -4612,7 +4764,7 @@
       "type": "cross_strait",
       "context": "@domain IT。避免混用 kernel (核心) 和 core; 當「核心」不指 OS kernel 時用「主體」",
       "english": "core concept",
-      "context_clues": ["作業系統", "OS", "kernel", "核心", "微核心", "程序", "行程"]
+      "context_clues": ["作業系統", "OS", "kernel", "微核心", "程序", "行程"]
     },
     {
       "from": "核心洞察",
@@ -4753,7 +4905,8 @@
       "from": "標頭檔案",
       "to": ["標頭檔"],
       "type": "cross_strait",
-      "context": "tw 慣用「標頭檔」而非「標頭檔案」(@seealso 頭文件)"
+      "context": "tw 慣用「標頭檔」而非「標頭檔案」(@seealso 頭文件)",
+      "english": "header file"
     },
     {
       "from": "模塊",
@@ -4807,6 +4960,13 @@
       "english": "template argument deduction"
     },
     {
+      "from": "橙汁",
+      "to": ["柳橙汁"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "orange juice"
+    },
+    {
       "from": "機械硬盤",
       "to": ["機械硬碟"],
       "type": "cross_strait",
@@ -4833,6 +4993,13 @@
       "type": "cross_strait",
       "context": "@domain IT。「檢測」偏指 inspect/test，語意不同",
       "english": "detect"
+    },
+    {
+      "from": "檯式機",
+      "to": ["桌機", "桌上型電腦"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "desktop computer"
     },
     {
       "from": "權限",
@@ -4947,6 +5114,13 @@
       "english": "Mauritius"
     },
     {
+      "from": "氨基酸",
+      "to": ["胺基酸"],
+      "type": "cross_strait",
+      "context": "@domain 科學",
+      "english": "amino acid"
+    },
+    {
       "from": "污",
       "to": ["汙"],
       "type": "variant",
@@ -4988,6 +5162,13 @@
       "english": "generic algorithm"
     },
     {
+      "from": "泡沫塑料",
+      "to": ["保麗龍"],
+      "type": "cross_strait",
+      "context": "@domain 日常。cn 泡沫塑料 = tw 保麗龍 (styrofoam)",
+      "english": "styrofoam/expanded polystyrene"
+    },
+    {
       "from": "波分複用",
       "to": ["波長分波多工"],
       "type": "cross_strait",
@@ -5000,6 +5181,27 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Bosnia and Herzegovina"
+    },
+    {
+      "from": "泥石流",
+      "to": ["土石流"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "mudslide/debris flow"
+    },
+    {
+      "from": "洗甲水",
+      "to": ["去光水"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "nail polish remover"
+    },
+    {
+      "from": "洗面奶",
+      "to": ["洗面乳"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "facial cleanser"
     },
     {
       "from": "洗髮水",
@@ -5072,7 +5274,7 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "message queue",
-      "context_clues": ["MQ", "Kafka", "RabbitMQ", "非同步", "佇列"]
+      "context_clues": ["MQ", "Kafka", "非同步", "佇列"]
     },
     {
       "from": "涼菜",
@@ -5102,12 +5304,19 @@
       "english": "channel"
     },
     {
+      "from": "渣土車",
+      "to": ["砂石車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "dump truck"
+    },
+    {
       "from": "渲染",
       "to": ["算繪"],
       "type": "cross_strait",
       "context": "@domain 程式設計。依 MoE 辭典，「渲染」本義為國畫用水墨暈染技法或文字誇大手法，語意與 rendering (計算+繪製) 相反。CG 語境應譯「算繪」，建築裝潢語境譯「粉刷」",
       "english": "render",
-      "context_clues": ["圖學", "圖形", "3D", "GPU", "畫面", "幀", "frame", "shader", "貼圖", "光線", "場景", "引擎", "OpenGL", "Vulkan", "DirectX", "管線", "pipeline"]
+      "context_clues": ["圖學", "圖形", "3D", "GPU", "畫面", "幀", "frame", "shader", "貼圖", "光線", "場景", "引擎", "OpenGL", "Vulkan", "DX", "管線"]
     },
     {
       "from": "渲染管線",
@@ -5253,7 +5462,7 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "infinite scroll",
-      "context_clues": ["UI", "載入", "頁面", "捲動", "滾動"]
+      "context_clues": ["UI", "載入", "頁面", "捲動"]
     },
     {
       "from": "無限遞歸",
@@ -5261,6 +5470,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "infinite recursive"
+    },
+    {
+      "from": "燃氣灶",
+      "to": ["瓦斯爐"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "gas stove"
     },
     {
       "from": "營銷",
@@ -5426,7 +5642,7 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。限 C++ 模板語境",
       "english": "specialization",
-      "context_clues": ["模板", "範本", "template", "C++", "泛型"]
+      "context_clues": ["模板", "範本", "C++", "泛型"]
     },
     {
       "from": "特立尼達和多巴哥",
@@ -5441,6 +5657,13 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "status bar"
+    },
+    {
+      "from": "獼猴桃",
+      "to": ["奇異果"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "kiwi fruit"
     },
     {
       "from": "班主任",
@@ -5666,6 +5889,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "taxi"
+    },
+    {
+      "from": "盒飯",
+      "to": ["便當"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "lunchbox/bento"
     },
     {
       "from": "盤片",
@@ -5939,7 +6169,7 @@
       "type": "cross_strait",
       "context": "@domain IT。不應與「程序」(procedure/步驟) 混淆",
       "english": "program",
-      "context_clues": ["編寫", "代碼", "程式碼", "執行", "開發", "編譯", "軟件", "軟體", "調試", "除錯", "偵錯", "CPU", "排程", "行程", "核心", "記憶體", "I/O", "作業系統", "狀態", "IPC", "Process"],
+      "context_clues": ["編寫", "代碼", "程式碼", "執行", "開發", "編譯", "軟件", "軟體", "調試", "除錯", "偵錯", "CPU", "排程", "行程", "核心", "記憶體", "I/O", "作業系統", "狀態", "IPC"],
       "exceptions": ["標準程序", "行政程序", "法律程序", "司法程序", "議事程序", "審核程序", "審查程序"]
     },
     {
@@ -5991,7 +6221,7 @@
       "type": "cross_strait",
       "context": "process state/status；「程序」此處指 process (@seealso 程序管理)",
       "english": "process state",
-      "context_clues": ["READY", "BLOCKED", "RUNNING", "就緒", "排程", "核心", "切換", "fork"]
+      "context_clues": ["READY", "阻塞", "執行中", "就緒", "排程", "核心", "切換", "fork"]
     },
     {
       "from": "程序管理",
@@ -6073,7 +6303,7 @@
       "type": "cross_strait",
       "context": "idle process/idle task。OpenCC 將空闲进程轉為空閒程序，tw 標準為「閒置行程」(@seealso 空閒程式)",
       "english": "idle process/idle task",
-      "context_clues": ["排程", "CPU", "核心", "行程", "PID", "scheduler"]
+      "context_clues": ["排程", "CPU", "核心", "行程", "PID"]
     },
     {
       "from": "空閒程式",
@@ -6081,7 +6311,7 @@
       "type": "cross_strait",
       "context": "idle process/idle task。aggressive fixer 可能將空閒程序改為空閒程式，tw 標準為「閒置行程」(@seealso 空閒程序)",
       "english": "idle process/idle task",
-      "context_clues": ["排程", "CPU", "核心", "行程", "PID", "scheduler"]
+      "context_clues": ["排程", "CPU", "核心", "行程", "PID"]
     },
     {
       "from": "空間分配",
@@ -6139,7 +6369,7 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "end-to-end test / E2E test",
-      "context_clues": ["測試", "自動化", "瀏覽器", "E2E"]
+      "context_clues": ["自動化", "瀏覽器", "E2E"]
     },
     {
       "from": "端口",
@@ -6184,6 +6414,13 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "plasma"
+    },
+    {
+      "from": "等離子電視",
+      "to": ["電漿電視"],
+      "type": "cross_strait",
+      "context": "@domain IT。cn 等離子電視 = tw 電漿電視 (plasma TV)",
+      "english": "plasma TV"
     },
     {
       "from": "算子",
@@ -6265,6 +6502,13 @@
       "english": "nanometer/nm"
     },
     {
+      "from": "純淨水",
+      "to": ["純水"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "purified water"
+    },
+    {
       "from": "素數",
       "to": ["質數"],
       "type": "cross_strait",
@@ -6328,6 +6572,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "bundle"
+    },
+    {
+      "from": "綜合徵",
+      "to": ["症候群"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "syndrome"
     },
     {
       "from": "網上鄰居",
@@ -6643,6 +6894,13 @@
       "english": "offline"
     },
     {
+      "from": "腳手架",
+      "to": ["鷹架"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "scaffolding"
+    },
+    {
       "from": "腳本",
       "to": ["指令碼"],
       "type": "cross_strait",
@@ -6776,6 +7034,21 @@
       "context_clues": ["點選", "單擊", "按鈕", "下拉", "視窗", "窗口", "工具列", "右鍵"]
     },
     {
+      "from": "菜譜",
+      "to": ["食譜"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "recipe/cookbook"
+    },
+    {
+      "from": "菠蘿",
+      "to": ["鳳梨"],
+      "type": "cross_strait",
+      "context": "@domain 日常。cn 菠蘿 = tw 鳳梨 (pineapple)",
+      "english": "pineapple",
+      "negative_context_clues": ["麵包", "包"]
+    },
+    {
       "from": "萊索托",
       "to": ["賴索托"],
       "type": "cross_strait",
@@ -6907,6 +7180,13 @@
       "english": "industry"
     },
     {
+      "from": "衛生巾",
+      "to": ["衛生棉"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "sanitary pad"
+    },
+    {
       "from": "表情包",
       "to": ["貼圖包"],
       "type": "cross_strait",
@@ -6922,12 +7202,26 @@
       "english": "expression"
     },
     {
+      "from": "袋泡茶",
+      "to": ["茶包"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "tea bag"
+    },
+    {
       "from": "被重載的操作符",
       "to": ["多載化運算子"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "overloaded operator",
       "context_clues": ["運算", "表達式", "運算子", "C++", "編譯", "程式", "語法"]
+    },
+    {
+      "from": "裂化",
+      "to": ["裂解"],
+      "type": "cross_strait",
+      "context": "@domain 科學",
+      "english": "cracking (chemistry)"
     },
     {
       "from": "裏",
@@ -6973,6 +7267,13 @@
       "english": "photocopy"
     },
     {
+      "from": "複印機",
+      "to": ["影印機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "photocopier"
+    },
+    {
       "from": "複選按鈕",
       "to": ["核取按鈕", "方鈕"],
       "type": "cross_strait",
@@ -6985,6 +7286,20 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "checkbox"
+    },
+    {
+      "from": "襯衣",
+      "to": ["襯衫"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "shirt"
+    },
+    {
+      "from": "西蘭花",
+      "to": ["青花菜"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "broccoli"
     },
     {
       "from": "覈",
@@ -7172,7 +7487,7 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。限軟體設計語境。「設計模式」在 tw 也常用，此規則僅在明確軟體設計語境提示",
       "english": "design pattern",
-      "context_clues": ["GoF", "pattern", "物件導向", "面向對象", "軟體", "軟件"]
+      "context_clues": ["GoF", "物件導向", "面向對象", "軟體", "軟件"]
     },
     {
       "from": "許可證",
@@ -7195,7 +7510,7 @@
       "type": "cross_strait",
       "context": "@domain IT。限 Windows 語境",
       "english": "registry",
-      "context_clues": ["Windows", "微軟", "系統", "登錄", "regedit"]
+      "context_clues": ["視窗", "微軟", "系統", "登錄"]
     },
     {
       "from": "註銷",
@@ -7366,6 +7681,13 @@
       "english": "Today view/widget screen"
     },
     {
+      "from": "負增長",
+      "to": ["負成長"],
+      "type": "cross_strait",
+      "context": "@domain 金融",
+      "english": "negative growth"
+    },
+    {
       "from": "負載均衡",
       "to": ["負載平衡"],
       "type": "cross_strait",
@@ -7394,7 +7716,7 @@
       "type": "cross_strait",
       "context": "@domain IT。限 Windows 語境",
       "english": "file explorer",
-      "context_clues": ["Windows", "微軟", "系統", "檔案", "資料夾"]
+      "context_clues": ["視窗", "微軟", "系統", "檔案", "資料夾"]
     },
     {
       "from": "賦值",
@@ -7463,11 +7785,25 @@
       "english": "ultra high definition (UHD)"
     },
     {
+      "from": "超聲波",
+      "to": ["超音波"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "ultrasound"
+    },
+    {
       "from": "跟隨",
       "to": ["追蹤"],
       "type": "cross_strait",
       "context": "@domain 社群",
       "english": "follow"
+    },
+    {
+      "from": "跳閘",
+      "to": ["跳電"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "circuit breaker trip/power trip"
     },
     {
       "from": "踊",
@@ -7481,6 +7817,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "bungee jumping"
+    },
+    {
+      "from": "身份證",
+      "to": ["身分證"],
+      "type": "cross_strait",
+      "context": "@domain 日常。MoE 標準用「身分」",
+      "english": "identity card"
     },
     {
       "from": "軟件",
@@ -7497,6 +7840,13 @@
       "english": "software package"
     },
     {
+      "from": "軟盤",
+      "to": ["軟碟"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "floppy disk"
+    },
+    {
       "from": "軟驅",
       "to": ["軟碟機"],
       "type": "cross_strait",
@@ -7509,6 +7859,13 @@
       "type": "cross_strait",
       "context": "@domain 語言學",
       "english": "consonant"
+    },
+    {
+      "from": "轉帖",
+      "to": ["轉貼"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "repost"
     },
     {
       "from": "轉發",
@@ -7568,6 +7925,13 @@
       "english": "Dubai"
     },
     {
+      "from": "追尾",
+      "to": ["追撞"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "rear-end collision"
+    },
+    {
       "from": "通信",
       "to": ["通訊"],
       "type": "cross_strait",
@@ -7580,6 +7944,13 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "generic algorithm"
+    },
+    {
+      "from": "通脹",
+      "to": ["通膨"],
+      "type": "cross_strait",
+      "context": "@domain 金融",
+      "english": "inflation"
     },
     {
       "from": "通訊卡",
@@ -7696,6 +8067,13 @@
       "english": "traverse"
     },
     {
+      "from": "過山車",
+      "to": ["雲霄飛車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "roller coaster"
+    },
+    {
       "from": "過濾器",
       "to": ["篩選器"],
       "type": "cross_strait",
@@ -7786,7 +8164,7 @@
       "context": "@domain IT。「硬體/網路配置」tw 用「組態」；「記憶體配置」(allocation) 為正確 tw 用法",
       "english": "configuration",
       "context_clues": ["硬體", "韌體", "BIOS", "路由器", "防火牆", "網路", "交換器", "機箱", "主機板", "插槽", "插卡", "NIC", "PCIe", "PCI"],
-      "negative_context_clues": ["記憶體", "回收", "配置器", "malloc", "allocat"]
+      "negative_context_clues": ["記憶體", "回收", "配置器", "malloc", "alloc"]
     },
     {
       "from": "配置文件",
@@ -7831,6 +8209,13 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "redirect"
+    },
+    {
+      "from": "重症監護病房",
+      "to": ["加護病房"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "intensive care unit (ICU)"
     },
     {
       "from": "重裝",
@@ -7893,6 +8278,13 @@
       "to": ["銷毀"],
       "type": "variant",
       "context": "MoE 標準字體：「毀」為正體，「燬」為異體字"
+    },
+    {
+      "from": "鋼化玻璃",
+      "to": ["強化玻璃"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "tempered glass"
     },
     {
       "from": "錄像",
@@ -7978,7 +8370,7 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "start menu",
-      "context_clues": ["Windows", "桌面", "工作列", "程式"]
+      "context_clues": ["視窗", "桌面", "工作列", "程式"]
     },
     {
       "from": "開源",
@@ -8016,7 +8408,14 @@
       "type": "cross_strait",
       "context": "@domain 社群。「關注」偏指 pay attention to，社群媒體語境語意不同",
       "english": "follow/subscribe",
-      "context_clues": ["訂閱", "帳號", "貼文", "社群", "粉絲", "推特", "臉書", "Twitter", "Facebook", "Instagram", "YouTube", "追蹤者"]
+      "context_clues": ["訂閱", "帳號", "貼文", "社群", "粉絲", "推特", "臉書", "IG", "YT", "追蹤者"]
+    },
+    {
+      "from": "阿司匹林",
+      "to": ["阿斯匹靈"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "aspirin"
     },
     {
       "from": "阿塞拜疆",
@@ -8038,7 +8437,15 @@
       "type": "cross_strait",
       "context": "@domain 醫學",
       "english": "Alzheimer's disease",
-      "context_clues": ["失智", "疾病", "記憶", "老年"]
+      "context_clues": ["失智", "疾病", "記憶", "老年"],
+      "exceptions": ["阿爾茨海默病"]
+    },
+    {
+      "from": "阿爾茨海默病",
+      "to": ["阿茲海默症"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "Alzheimer's disease"
     },
     {
       "from": "附加組件",
@@ -8096,7 +8503,7 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "integration test",
-      "context_clues": ["測試", "單元", "CI", "自動化"]
+      "context_clues": ["單元", "CI", "自動化"]
     },
     {
       "from": "集成開發環境",
@@ -8170,6 +8577,13 @@
       "english": "components/parts"
     },
     {
+      "from": "電吹風",
+      "to": ["吹風機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "hair dryer"
+    },
+    {
       "from": "電源適配器",
       "to": ["電源供應器"],
       "type": "cross_strait",
@@ -8182,6 +8596,13 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "battery cell"
+    },
+    {
+      "from": "電飯煲",
+      "to": ["電鍋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "rice cooker"
     },
     {
       "from": "需要注意的是",
@@ -8338,6 +8759,13 @@
       "english": "header file"
     },
     {
+      "from": "頭腦風暴",
+      "to": ["腦力激盪"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "brainstorming"
+    },
+    {
       "from": "頻分多址",
       "to": ["分頻多重進接"],
       "type": "cross_strait",
@@ -8357,7 +8785,7 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。依 MoE 辭典，「類」為分類/種類之意。程式設計中 class 應譯「類別」",
       "english": "class",
-      "context_clues": ["class", "物件", "對象", "繼承", "多型", "介面", "OOP", "建構", "方法", "抽象", "封裝", "實體", "子類別", "基底", "衍生", "overrid", "虛擬函式"],
+      "context_clues": ["class", "物件", "對象", "繼承", "多型", "介面", "OOP", "建構", "方法", "抽象", "封裝", "實體", "子類別", "基底", "衍生", "覆寫", "虛擬函式"],
       "exceptions": ["分類", "人類", "種類", "類似", "歸類", "各類", "同類", "大類", "小類", "這類", "那類", "此類", "何類", "一類", "之類", "其類", "同類之", "以及類似", "類比", "類推", "類別"]
     },
     {
@@ -8553,7 +8981,7 @@
       "type": "cross_strait",
       "context": "限 IT 語境，針對 DOS/Windows 的檔案系統 (@seealso 資源管理器)",
       "english": "drive",
-      "context_clues": ["磁碟", "硬碟", "檔案", "Windows", "路徑"]
+      "context_clues": ["磁碟", "硬碟", "檔案", "視窗", "路徑"]
     },
     {
       "from": "驅動程序",
@@ -8591,6 +9019,13 @@
       "context": "@domain IT",
       "english": "high availability / HA",
       "context_clues": ["叢集", "容錯", "備援", "伺服器"]
+    },
+    {
+      "from": "高壓鍋",
+      "to": ["壓力鍋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "pressure cooker"
     },
     {
       "from": "高性能計算",
@@ -8653,6 +9088,13 @@
       "to": ["鯰"],
       "type": "variant",
       "context": "MoE 標準字體 (@example 鯰魚)"
+    },
+    {
+      "from": "鱷梨",
+      "to": ["酪梨"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "avocado"
     },
     {
       "from": "麪",
