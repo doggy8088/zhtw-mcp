@@ -2120,6 +2120,7 @@ fn tool_definitions() -> Vec<ToolDef> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mcp::types::RequestId;
 
     #[test]
     fn issue_summary_omits_zero_sampling_fields() {
@@ -2206,5 +2207,415 @@ mod tests {
         let summary = build_summary(&issues, 0, SamplingStats::default(), &disambig);
         assert_eq!(summary.tier2_resolved, 3);
         assert_eq!(summary.tier2_gray_zone, 1);
+    }
+
+    fn make_initialized_server() -> (Server, tempfile::TempDir) {
+        let dir = tempfile::tempdir().unwrap();
+        let mut server = Server::new(
+            OverrideStore::open(&dir.path().join("overrides.json")).unwrap(),
+            SuppressionStore::open(&dir.path().join("suppressions.json")).unwrap(),
+            PackStore::new(dir.path().join("packs")),
+            vec![],
+            None,
+        )
+        .unwrap();
+        let mut init_req = JsonRpcRequest {
+            jsonrpc: "2.0".into(),
+            id: Some(RequestId::Int(0)),
+            method: "initialize".into(),
+            params: serde_json::json!({
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": { "name": "test", "version": "0.1" }
+            }),
+        };
+        let resp = server.dispatch_preinit(&mut init_req);
+        assert!(resp.unwrap().unwrap().error.is_none());
+
+        (server, dir)
+    }
+
+    fn call_zhtw(server: &mut Server, args: serde_json::Value) -> JsonRpcResponse {
+        let mut req = JsonRpcRequest {
+            jsonrpc: "2.0".into(),
+            id: Some(RequestId::Int(1)),
+            method: "tools/call".into(),
+            params: serde_json::json!({ "name": "zhtw", "arguments": args }),
+        };
+        server.handle_tools_call(&mut req, None)
+    }
+
+    fn assert_tool_success(resp: &JsonRpcResponse) -> serde_json::Value {
+        let result = resp.result.as_ref().unwrap();
+        assert!(result.get("isError").is_none());
+        let content = result.get("content").and_then(|v| v.as_array()).unwrap();
+        assert!(!content.is_empty());
+        let text = content[0].get("text").and_then(|v| v.as_str()).unwrap();
+        serde_json::from_str(text).unwrap()
+    }
+
+    #[test]
+    fn tools_call_arguments_not_object() {
+        let (mut server, _dir) = make_initialized_server();
+        let mut req = JsonRpcRequest {
+            jsonrpc: "2.0".into(),
+            id: Some(RequestId::Int(1)),
+            method: "tools/call".into(),
+            params: serde_json::json!({ "name": "zhtw", "arguments": "not_an_object" }),
+        };
+        let resp = server.handle_tools_call(&mut req, None);
+        assert!(resp.error.is_some());
+        let err = resp.error.unwrap();
+        assert_eq!(err.code, INVALID_PARAMS);
+    }
+
+    #[test]
+    fn tools_call_text_exceeds_max_size() {
+        let (mut server, _dir) = make_initialized_server();
+        let big_text = "あ".repeat(Server::MAX_TEXT_BYTES + 1);
+        let resp = call_zhtw(&mut server, serde_json::json!({ "text": big_text }));
+        assert!(resp.error.is_some());
+        let err = resp.error.unwrap();
+        assert_eq!(err.code, INVALID_PARAMS);
+    }
+
+    #[test]
+    fn tools_call_empty_text_input() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(&mut server, serde_json::json!({ "text": "" }));
+        assert!(resp.error.is_none());
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+        assert_eq!(output["gate"]["enabled"], false);
+        assert_eq!(output["text"], "");
+    }
+
+    #[test]
+    fn tools_call_response_gate_accepts_no_errors_when_max_errors_set() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "", "max_errors": 0 }),
+        );
+        assert!(resp.error.is_none());
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+        assert_eq!(output["gate"]["enabled"], true);
+        assert_eq!(output["gate"]["max_errors"], 0);
+    }
+
+    fn assert_tool_rejected(resp: &JsonRpcResponse) -> serde_json::Value {
+        let result = resp.result.as_ref().unwrap();
+        assert_eq!(result.get("isError").and_then(|v| v.as_bool()), Some(true));
+        let content = result.get("content").and_then(|v| v.as_array()).unwrap();
+        assert!(!content.is_empty());
+        let text = content[0].get("text").and_then(|v| v.as_str()).unwrap();
+        serde_json::from_str(text).unwrap()
+    }
+
+    #[test]
+    fn tools_call_response_gate_rejects_when_errors_exceed_limit() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "乞業", "max_errors": 0 }),
+        );
+        let output = assert_tool_rejected(&resp);
+        assert_eq!(output["accepted"], false);
+        assert_eq!(output["gate"]["enabled"], true);
+        assert!(output["gate"]["residual_errors"].as_u64().unwrap() > 0);
+    }
+
+    #[test]
+    fn tools_call_response_gate_accepts_when_errors_within_limit() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "乞業", "max_errors": 10 }),
+        );
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+        assert_eq!(output["gate"]["enabled"], true);
+    }
+
+    #[test]
+    fn tools_call_response_gate_enabled_when_only_max_warnings_set() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "", "max_warnings": 0 }),
+        );
+        assert!(resp.error.is_none());
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+        assert_eq!(output["gate"]["enabled"], true);
+        assert_eq!(output["gate"]["max_warnings"], 0);
+    }
+
+    #[test]
+    fn tools_call_response_gate_rejects_when_warnings_exceed_limit() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "軟件", "max_warnings": 0 }),
+        );
+        let output = assert_tool_rejected(&resp);
+        assert_eq!(output["accepted"], false);
+        assert_eq!(output["gate"]["enabled"], true);
+        assert!(output["gate"]["residual_warnings"].as_u64().unwrap() > 0);
+    }
+
+    #[test]
+    fn tools_call_response_gate_accepts_when_warnings_within_limit() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "軟件", "max_warnings": 10 }),
+        );
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+        assert_eq!(output["gate"]["enabled"], true);
+    }
+
+    #[test]
+    fn tools_call_response_gate_rejects_when_errors_pass_but_warnings_exceed() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "軟件", "max_errors": 10, "max_warnings": 0
+            }),
+        );
+        let output = assert_tool_rejected(&resp);
+        assert_eq!(output["accepted"], false);
+        assert_eq!(output["gate"]["enabled"], true);
+    }
+
+    #[test]
+    fn tools_call_response_gate_rejects_when_warnings_pass_but_errors_exceed() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "乞業", "max_errors": 0, "max_warnings": 10
+            }),
+        );
+        let output = assert_tool_rejected(&resp);
+        assert_eq!(output["accepted"], false);
+        assert_eq!(output["gate"]["enabled"], true);
+    }
+
+    #[test]
+    fn tools_call_response_gate_accepts_after_stance_filters_political_errors() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "內地", "fix_mode": "none", "max_errors": 0, "political_stance": "neutral"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+    }
+
+    #[test]
+    fn tools_call_response_gate_rejects_when_stance_keeps_political_errors() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "內地", "fix_mode": "none", "max_errors": 0, "political_stance": "roc_centric"
+            }),
+        );
+        let output = assert_tool_rejected(&resp);
+        assert_eq!(output["accepted"], false);
+    }
+
+    #[test]
+    fn tools_call_response_gate_accepts_after_ignore_terms_downgrades_error() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "乞業", "max_errors": 0, "ignore_terms": ["乞業"]
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["accepted"], true);
+    }
+
+    #[test]
+    fn tools_call_set_invalid_content_type() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "", "content_type": "invalid_type" }),
+        );
+        assert!(resp.error.is_some());
+        assert!(resp.result.is_none());
+        let err = resp.error.unwrap();
+        assert_eq!(err.code, INVALID_PARAMS);
+        let data = err.data.unwrap();
+        assert_eq!(data["field"], "content_type");
+        assert_eq!(data["value"], "invalid_type");
+    }
+
+    #[test]
+    fn tools_call_set_invalid_profile() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "", "profile": "invalid_profile" }),
+        );
+        assert!(resp.error.is_some());
+        assert!(resp.result.is_none());
+        let err = resp.error.unwrap();
+        assert_eq!(err.code, INVALID_PARAMS);
+        let data = err.data.unwrap();
+        assert_eq!(data["field"], "profile");
+        assert_eq!(data["value"], "invalid_profile");
+    }
+
+    #[test]
+    fn tools_call_set_invalid_fix_mode() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "", "fix_mode": "invalid_fix_mode" }),
+        );
+        assert!(resp.error.is_some());
+        assert!(resp.result.is_none());
+        let err = resp.error.unwrap();
+        assert_eq!(err.code, INVALID_PARAMS);
+        let data = err.data.unwrap();
+        assert_eq!(data["field"], "fix_mode");
+        assert_eq!(data["value"], "invalid_fix_mode");
+    }
+
+    #[test]
+    fn tools_call_set_invalid_political_stance() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({ "text": "", "political_stance": "invalid_stance" }),
+        );
+        assert!(resp.error.is_some());
+        assert!(resp.result.is_none());
+        let err = resp.error.unwrap();
+        assert_eq!(err.code, INVALID_PARAMS);
+        let data = err.data.unwrap();
+        assert_eq!(data["field"], "political_stance");
+        assert_eq!(data["value"], "invalid_stance");
+    }
+
+    #[test]
+    fn tools_call_explain_true_includes_explanation() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "軟件", "explain": true, "output": "full"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(!issues.is_empty());
+        assert!(issues[0].get("explanation").is_some());
+    }
+
+    #[test]
+    fn tools_call_explain_false_omits_explanation() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "軟件", "explain": false, "output": "full"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(!issues.is_empty());
+        assert!(issues[0].get("explanation").is_none());
+    }
+
+    #[test]
+    fn tools_call_explain_non_bool_treated_as_false() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "軟件", "explain": "not_a_boolean", "output": "full"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(!issues.is_empty());
+        assert!(issues[0].get("explanation").is_none());
+    }
+
+    #[test]
+    fn tools_call_explain_true_compact_includes_explanation() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "軟件", "explain": true, "output": "compact"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(!issues.is_empty());
+        assert!(issues[0].get("explanation").is_some());
+        assert!(issues[0].get("count").is_some());
+        assert!(issues[0].get("locations").is_some());
+    }
+
+    #[test]
+    fn tools_call_explain_false_compact_omits_explanation() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "軟件", "explain": false, "output": "compact"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(!issues.is_empty());
+        assert!(issues[0].get("explanation").is_none());
+        assert!(issues[0].get("count").is_some());
+        assert!(issues[0].get("locations").is_some());
+    }
+
+    #[test]
+    fn tools_call_lint_stance_roc_centric_keeps_political_issue() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "內地", "fix_mode": "none", "political_stance": "roc_centric"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(issues
+            .iter()
+            .any(|i| i["rule_type"] == "political_coloring"));
+    }
+
+    #[test]
+    fn tools_call_lint_stance_neutral_removes_political_issue() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "內地", "fix_mode": "none", "political_stance": "neutral"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        let issues = output["issues"].as_array().unwrap();
+        assert!(!issues
+            .iter()
+            .any(|i| i["rule_type"] == "political_coloring"));
     }
 }
