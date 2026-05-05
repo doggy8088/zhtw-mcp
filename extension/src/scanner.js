@@ -1,7 +1,10 @@
+import "./shared.js";
 import initWasm, { scan_text as scanTextWasm } from "../dist/zhtw_mcp_wasm.js";
 
 let wasmModulePromise;
 let scanTextBinding;
+
+const { filterExtensionIgnoredIssues } = globalThis.ZhtwExtensionShared;
 
 async function loadWasmModule() {
   if (!wasmModulePromise) {
@@ -30,5 +33,5 @@ export async function scanText(text, options = {}) {
   }
 
   const resultJson = scanTextBinding(text, JSON.stringify(options));
-  return JSON.parse(resultJson);
+  return filterExtensionIgnoredIssues(JSON.parse(resultJson), text);
 }
