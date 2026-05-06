@@ -109,6 +109,7 @@
       return [];
     }
 
+    const byteOffsets = codeUnitByteOffsets(text);
     const ranges = [];
     for (const pattern of extensionIgnoredPatterns) {
       let searchStart = 0;
@@ -117,15 +118,37 @@
         if (index < 0) {
           break;
         }
-        const byteStart = utf8ByteLength(text.slice(0, index));
+        const byteStart = byteOffsets[index];
         ranges.push({
           byteStart,
-          byteEnd: byteStart + utf8ByteLength(pattern),
+          byteEnd: byteOffsets[index + pattern.length],
         });
         searchStart = index + pattern.length;
       }
     }
     return ranges;
+  }
+
+  function codeUnitByteOffsets(text) {
+    const offsets = new Array(text.length + 1);
+    let bytes = 0;
+    let index = 0;
+    offsets[0] = 0;
+
+    for (const char of text) {
+      bytes += utf8ByteLength(char);
+      const nextIndex = index + char.length;
+      for (
+        let offsetIndex = index + 1;
+        offsetIndex <= nextIndex;
+        offsetIndex += 1
+      ) {
+        offsets[offsetIndex] = bytes;
+      }
+      index = nextIndex;
+    }
+
+    return offsets;
   }
 
   function countSeverityIssues(issues) {

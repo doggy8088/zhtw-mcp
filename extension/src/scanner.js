@@ -1,5 +1,4 @@
 import "./shared.js";
-import initWasm, { scan_text as scanTextWasm } from "../dist/zhtw_mcp_wasm.js";
 
 let wasmModulePromise;
 let scanTextBinding;
@@ -9,6 +8,9 @@ const { filterExtensionIgnoredIssues } = globalThis.ZhtwExtensionShared;
 async function loadWasmModule() {
   if (!wasmModulePromise) {
     wasmModulePromise = (async () => {
+      const { default: initWasm, scan_text: scanTextWasm } = await import(
+        "../dist/zhtw_mcp_wasm.js"
+      );
       const wasmUrl = chrome.runtime.getURL("dist/zhtw_mcp_wasm_bg.wasm");
       await initWasm(wasmUrl);
       scanTextBinding = scanTextWasm;

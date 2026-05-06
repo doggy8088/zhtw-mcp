@@ -82,17 +82,15 @@ test("extension ignores configured punctuation-only patterns", () => {
 });
 
 test("extension ignores scanner issues inside configured pattern ranges", () => {
+  const text = "😀提示:::內容";
   const issue = {
-    offset: utf8ByteLength("提示"),
+    offset: utf8ByteLength("😀提示"),
     length: utf8ByteLength(":"),
     found: ":",
     severity: "warning",
   };
 
-  const filtered = filterExtensionIgnoredIssues(
-    { issues: [issue] },
-    "提示:::內容",
-  );
+  const filtered = filterExtensionIgnoredIssues({ issues: [issue] }, text);
 
   assert.equal(shouldIgnoreExtensionIssue({ found: ":::" }), true);
   assert.equal(filtered.issues.length, 0);
