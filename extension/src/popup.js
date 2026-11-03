@@ -11,13 +11,19 @@ const symbolHandlingInput = document.querySelector("#symbol-handling");
 const SYMBOL_HANDLING_KEY = "symbol_handling";
 const SYMBOL_HANDLING_MODES = ["off", "remove", "warn"];
 
-form.addEventListener("submit", async (event) => {
+form.addEventListener("submit", (event) => {
   event.preventDefault();
-  await symbolHandlingLoad;
-  await runScan();
+  void scan();
 });
 
-document.addEventListener("DOMContentLoaded", loadPreviousResult);
+// The icon press says "check this page", so the check runs itself: the result
+// should not sit behind a second press on the button below.
+document.addEventListener("DOMContentLoaded", () => void scan());
+
+async function scan() {
+  await symbolHandlingLoad;
+  await runScan();
+}
 scanButton.disabled = true;
 symbolHandlingInput.disabled = true;
 const symbolHandlingLoad = loadSymbolHandling();
@@ -48,15 +54,6 @@ async function loadSymbolHandling() {
     symbolHandlingInput.disabled = false;
     scanButton.disabled = false;
   }
-}
-
-async function loadPreviousResult() {
-  const response = await sendMessage({ type: "GET_ACTIVE_TAB_RESULT" });
-  if (response.ok && response.result) {
-    renderResult(response.result);
-    return;
-  }
-  renderEmpty();
 }
 
 async function runScan() {
@@ -97,12 +94,6 @@ function sendMessage(message) {
       resolve(response || { ok: false, error: "No response from background." });
     });
   });
-}
-
-function renderEmpty() {
-  countNode.textContent = "—";
-  issueListNode.innerHTML = "";
-  renderStatus("尚未掃描", "idle");
 }
 
 function renderResult(result) {

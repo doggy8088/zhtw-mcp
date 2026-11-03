@@ -19,25 +19,3 @@ export function formatBadgeText(count) {
 export function isInspectableUrl(url = "") {
   return /^(https?|file):/i.test(url);
 }
-
-export function storageKey(tabId) {
-  return `tab:${tabId}:scan`;
-}
-
-/// Session storage has a per-extension quota, and a dense page can produce
-/// thousands of issues, so only a bounded prefix is stored.  The counts below
-/// record what was dropped.  Nothing renders them today: the popup lists at
-/// most 30 issues and takes its headline count from `badge_count`, which is
-/// computed over the whole page before truncation.
-export const MAX_STORED_ISSUES = 200;
-
-export function storageResult(result) {
-  const issues = Array.isArray(result.issues) ? result.issues : [];
-  return {
-    ...result,
-    issues: issues.slice(0, MAX_STORED_ISSUES),
-    stored_issue_count: Math.min(issues.length, MAX_STORED_ISSUES),
-    total_issue_count: issues.length,
-    storage_truncated: issues.length > MAX_STORED_ISSUES,
-  };
-}

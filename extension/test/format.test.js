@@ -1,13 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import {
-  MAX_STORED_ISSUES,
-  formatBadgeText,
-  isInspectableUrl,
-  storageKey,
-  storageResult,
-} from "../src/format.js";
+import { formatBadgeText, isInspectableUrl } from "../src/format.js";
 
 test("badge text is capped for dense pages", () => {
   assert.equal(formatBadgeText(0), "");
@@ -36,39 +30,4 @@ test("only injectable schemes are offered a scan", () => {
     assert.equal(isInspectableUrl(url), false, url);
   }
   assert.equal(isInspectableUrl(), false);
-});
-
-test("storage keys are per tab", () => {
-  assert.equal(storageKey(7), "tab:7:scan");
-  assert.notEqual(storageKey(7), storageKey(8));
-});
-
-test("stored results are truncated and say so", () => {
-  const issues = Array.from({ length: MAX_STORED_ISSUES + 5 }, (_, i) => ({
-    offset: i,
-  }));
-  const stored = storageResult({ issues, page_title: "t" });
-
-  assert.equal(stored.issues.length, MAX_STORED_ISSUES);
-  assert.equal(stored.stored_issue_count, MAX_STORED_ISSUES);
-  assert.equal(stored.total_issue_count, MAX_STORED_ISSUES + 5);
-  assert.equal(stored.storage_truncated, true);
-  // Truncation must not drop the rest of the payload.
-  assert.equal(stored.page_title, "t");
-});
-
-test("a result that fits is not marked truncated", () => {
-  const stored = storageResult({ issues: [{ offset: 0 }] });
-
-  assert.equal(stored.issues.length, 1);
-  assert.equal(stored.total_issue_count, 1);
-  assert.equal(stored.storage_truncated, false);
-});
-
-test("a result with no issues array is still storable", () => {
-  const stored = storageResult({});
-
-  assert.deepEqual(stored.issues, []);
-  assert.equal(stored.total_issue_count, 0);
-  assert.equal(stored.storage_truncated, false);
 });

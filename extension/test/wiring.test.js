@@ -59,8 +59,7 @@ test("every name background.js imports from format.js is exported", () => {
 
   assert.ok(imported.length > 0, "background.js should import from format.js");
   for (const name of imported) {
-    // Presence, not type: format.js exports MAX_STORED_ISSUES too, and any
-    // file is entitled to import it.
+    // Presence, not type: any file is entitled to what format.js exports.
     assert.ok(
       name in format,
       `format.js does not export ${name}, but background.js imports it`,
@@ -322,4 +321,14 @@ test("the popup waits for the stored mode before it scans", () => {
   // And the read has to settle rather than reject, or that await throws on
   // every press and the scan never runs at all.
   assert.match(src("popup.js"), /catch \(error\) \{[\s\S]*?\}\s*finally \{/);
+});
+
+// The icon press says "check this page", so the popup scans on open instead of
+// parking on the last result until a second press.  The restore path that
+// parking needed is gone with it: a message type kept on one side only would
+// answer "unknown message" and leave the popup blank.
+test("the popup scans on open and the restore path is gone", () => {
+  assert.match(src("popup.js"), /DOMContentLoaded[^\n]*scan\(\)/);
+  assert.doesNotMatch(src("popup.js"), /GET_ACTIVE_TAB_RESULT/);
+  assert.doesNotMatch(src("background.js"), /GET_ACTIVE_TAB_RESULT/);
 });

@@ -1,12 +1,6 @@
 import { scanText } from "./scanner.js";
-import {
-  formatBadgeText,
-  isInspectableUrl,
-  storageKey,
-  storageResult,
-} from "./format.js";
+import { formatBadgeText, isInspectableUrl } from "./format.js";
 
-const latestResults = new Map();
 const DEFAULT_OPTIONS = {
   profile: "base",
   spacing: "require",
@@ -19,14 +13,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "RUN_SCAN_ACTIVE_TAB") {
     runScanForActiveTab(message.options || DEFAULT_OPTIONS)
       .then(sendResponse)
-      .catch((error) => sendResponse({ ok: false, error: error.message }));
-    return true;
-  }
-
-  if (message?.type === "GET_ACTIVE_TAB_RESULT") {
-    getActiveTab()
-      .then((tab) => getStoredResult(tab?.id))
-      .then((result) => sendResponse({ ok: true, result }))
       .catch((error) => sendResponse({ ok: false, error: error.message }));
     return true;
   }
@@ -110,7 +96,6 @@ async function runScanForActiveTab(options) {
     page_url: tab.url || "",
     scanned_at: new Date().toISOString(),
   };
-  await storeResult(tab.id, result);
   return { ok: true, result };
 }
 
@@ -163,38 +148,9 @@ async function clearTabResult(tabId, { clearBadge = true } = {}) {
   if (!tabId) {
     return;
   }
-  latestResults.delete(tabId);
   if (clearBadge) {
     await chrome.action.setBadgeText({ tabId, text: "" });
   }
-  if (chrome.storage?.session) {
-    await chrome.storage.session.remove(storageKey(tabId));
-  }
-}
-
-async function storeResult(tabId, result) {
-  latestResults.set(tabId, result);
-  if (chrome.storage?.session) {
-    try {
-      await chrome.storage.session.set({ [storageKey(tabId)]: storageResult(result) });
-    } catch (error) {
-      console.warn("Could not persist scan result in session storage.", error);
-    }
-  }
-}
-
-async function getStoredResult(tabId) {
-  if (!tabId) {
-    return null;
-  }
-  if (latestResults.has(tabId)) {
-    return latestResults.get(tabId);
-  }
-  if (chrome.storage?.session) {
-    const stored = await chrome.storage.session.get(storageKey(tabId));
-    return stored[storageKey(tabId)] || null;
-  }
-  return null;
 }
 
 function reportAsyncError(error) {
