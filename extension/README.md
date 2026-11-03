@@ -55,6 +55,8 @@ On the page itself, only those markers leave the scan, plus a standalone `...`
 that no Chinese prose sits against. A line of repeated punctuation such as `!!!`
 stays in, because the punctuation rules are what report it.
 
+The extension applies browser-only result filtering for common page markup patterns such as `...` and `:::`. These filters do not change the Rust CLI, MCP server, or WASM scanner rules.
+
 ## Test JavaScript helpers
 
 ```sh
