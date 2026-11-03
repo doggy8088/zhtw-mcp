@@ -1,3 +1,7 @@
+import "./shared.js";
+
+const { ruleTypeLabel } = globalThis.ZhtwExtensionShared;
+
 const form = document.querySelector("#scan-form");
 const statusNode = document.querySelector("#status");
 const countNode = document.querySelector("#count");
@@ -141,7 +145,7 @@ function renderIssues(issues) {
     const suggestion = issue.suggestions?.length
       ? ` → ${issue.suggestions.join("、")}`
       : "";
-    detail.textContent = `${issue.rule_type}${suggestion}`;
+    detail.textContent = `${ruleTypeLabel(issue.rule_type)}${suggestion}`;
 
     item.append(found, detail);
     issueListNode.append(item);

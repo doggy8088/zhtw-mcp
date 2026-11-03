@@ -11,6 +11,8 @@ const {
   filterExtensionIgnoredIssues,
   issueSegments,
   normalizeIssue,
+  ruleTypeLabel,
+  severityLabel,
   shouldHideExtensionIssue,
   shouldIgnoreExtensionIssue,
   tooltipForIssue,
@@ -133,7 +135,7 @@ test("normalizeIssue coerces junk rather than propagating it", () => {
 test("a tooltip omits the sections an issue has no data for", () => {
   const bare = tooltipForIssue(normalizeIssue({ found: "軟件", severity: "warning" }));
 
-  assert.match(bare, /^軟件 — unknown \/ warning\n無自動建議$/);
+  assert.match(bare, /^軟件 — unknown \/ 警告\n無自動建議$/);
   assert.doesNotMatch(bare, /說明/);
   assert.doesNotMatch(bare, /English/);
 });
@@ -152,8 +154,18 @@ test("a tooltip lists every suggestion", () => {
 
   assert.equal(
     full,
-    "軟件 — cross_strait / error\n建議：軟體、程式\n說明：台灣用語\nEnglish：software",
+    "軟件 — 對岸用語 / 錯誤\n建議：軟體、程式\n說明：台灣用語\nEnglish：software",
   );
+});
+
+// The labels are the only place a reader meets the vocabulary, so an
+// identifier with no label falls back to itself rather than disappearing.
+test("rule types and severities read in Chinese", () => {
+  assert.equal(ruleTypeLabel("translationese"), "翻譯腔");
+  assert.equal(ruleTypeLabel("cross_strait"), "對岸用語");
+  assert.equal(severityLabel("warning"), "警告");
+  assert.equal(ruleTypeLabel("not_a_type"), "not_a_type");
+  assert.equal(severityLabel("not_a_severity"), "not_a_severity");
 });
 
 test("segments read span text through a getter, so live nodes stay current", () => {

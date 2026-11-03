@@ -266,21 +266,52 @@
     return runs;
   }
 
+  // The rule type and severity travel as identifiers; only these labels say
+  // what they mean to a reader.  Kept here so the page tooltip and the popup
+  // card cannot drift into two vocabularies.
+  const RULE_TYPE_LABELS = {
+    political_coloring: "政治色彩用語",
+    cross_strait: "對岸用語",
+    typo: "錯別字",
+    confusable: "易混淆字詞",
+    case: "大小寫",
+    punctuation: "標點符號",
+    variant: "異體字",
+    grammar: "文法",
+    ai_style: "AI 語感",
+    repetition: "重複字詞",
+    translationese: "翻譯腔",
+  };
+
+  const SEVERITY_LABELS = { error: "錯誤", warning: "警告", info: "資訊" };
+
+  function ruleTypeLabel(ruleType) {
+    return RULE_TYPE_LABELS[ruleType] || ruleType;
+  }
+
+  function severityLabel(severity) {
+    return SEVERITY_LABELS[severity] || severity;
+  }
+
   function tooltipForIssue(issue) {
     const suggestion = issue.suggestions.length
       ? `建議：${issue.suggestions.join("、")}`
       : "無自動建議";
     const context = issue.context ? `\n說明：${issue.context}` : "";
     const english = issue.english ? `\nEnglish：${issue.english}` : "";
-    return `${issue.found} — ${issue.rule_type} / ${issue.severity}\n${suggestion}${context}${english}`;
+    return `${issue.found} — ${ruleTypeLabel(issue.rule_type)} / ${severityLabel(issue.severity)}\n${suggestion}${context}${english}`;
   }
 
   return {
+    RULE_TYPE_LABELS,
+    SEVERITY_LABELS,
     byteOffsetToCodeUnit,
     filterExtensionIgnoredIssues,
     issueSegments,
     langSpans,
     normalizeIssue,
+    ruleTypeLabel,
+    severityLabel,
     shouldHideExtensionIssue,
     shouldIgnoreExtensionIssue,
     tooltipForIssue,

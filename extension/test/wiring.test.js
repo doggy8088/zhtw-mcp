@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import "../src/shared.js";
 import { fileURLToPath } from "node:url";
 
 import * as format from "../src/format.js";
@@ -204,13 +205,13 @@ const popupHtml = readFileSync(
 /// The variant names of a Rust enum, lower cased.
 ///
 /// ScanOptions deserializes SpacingPolicy under #[serde(rename_all =
-/// "snake_case")], and every variant is one word, so the wire spelling is the
-/// variant name in lower case.
+/// "snake_case")], so the wire spelling is the variant name in snake case,
+/// one word or several.
 function enumVariantNames(source, enumName) {
   const body = new RegExp(`enum ${quote(enumName)} \\{([\\s\\S]*?)\\n\\}`).exec(source);
   assert.ok(body, `enum ${enumName} not found in src/rules/ruleset.rs`);
   return [...body[1].matchAll(/^\s*([A-Z][A-Za-z]*),/gm)].map((match) =>
-    match[1].toLowerCase(),
+    match[1].replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase(),
   );
 }
 
@@ -261,6 +262,17 @@ test("the structural-symbol exclusions cross from content collection to WASM", (
   assert.match(src("content.js"), /excluded_spans\s*:/);
   assert.match(src("background.js"), /excluded_spans\s*:/);
   assert.match(wasmSource, /excluded_spans\s*:/);
+});
+
+// A card that says "translationese" says nothing to a general reader.  The
+// type travels as an identifier and shared.js carries the one vocabulary, so
+// a variant added in Rust without a label would fall back to the identifier
+// and reach the reader raw.
+test("every issue type has a Chinese label", () => {
+  const labels = globalThis.ZhtwExtensionShared.RULE_TYPE_LABELS;
+  for (const name of enumVariantNames(rulesetSource, "IssueType")) {
+    assert.ok(labels[name], `no Chinese label for ${name}`);
+  }
 });
 
 test("the symbol handling mode crosses from the popup to the content script", () => {
