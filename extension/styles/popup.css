@@ -165,20 +165,58 @@ select {
   accent-color: var(--seal);
 }
 
+/* The scan already runs itself on open, so this is only the quiet re-check:
+   a small pill in the status chip's language, tucked into the card's corner.
+   Bordered and tinted rather than bare: it has to read as a button at a
+   glance, not as a label. */
 button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: auto;
   cursor: pointer;
-  padding: 12px 14px;
-  border-color: transparent;
-  background: var(--seal);
-  color: white;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  box-shadow: 0 12px 28px rgba(179, 38, 30, 0.26);
+  padding: 5px 13px;
+  border-color: rgba(179, 38, 30, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 252, 244, 0.9);
+  color: var(--seal);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  box-shadow: 0 1px 3px rgba(67, 43, 21, 0.1);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    color 0.18s ease;
+}
+
+button:hover {
+  border-color: rgba(179, 38, 30, 0.5);
+  background: rgba(179, 38, 30, 0.08);
+  box-shadow: 0 3px 10px rgba(179, 38, 30, 0.14);
+}
+
+button:active {
+  background: rgba(179, 38, 30, 0.14);
+  box-shadow: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
 }
 
 button:disabled {
   cursor: progress;
-  opacity: 0.65;
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
 }
 
 .issues {
