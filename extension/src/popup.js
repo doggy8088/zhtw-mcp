@@ -112,7 +112,12 @@ function renderEmpty() {
 function renderResult(result) {
   const count = result.badge_count || 0;
   countNode.textContent = String(count);
-  metaNode.textContent = `${result.page_title || "目前分頁"} · ${formatBreakdown(result)}`;
+  // The headline count and the issue list below say what was found and where
+  // it sits on the page.  This line only repeats the severity split, and only
+  // when there is one: a clean scan leaves it empty instead of spelling out
+  // zeroes.  The page title is deliberately out: the scan always ran on the
+  // page the reader is looking at.
+  metaNode.textContent = formatBreakdown(result);
   renderStatus(count ? `找到 ${count} 個需留意的用語` : "沒有警告或錯誤", count ? "warn" : "ok");
   renderIssues(result.issues || []);
 }

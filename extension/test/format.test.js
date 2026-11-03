@@ -74,8 +74,12 @@ test("a result with no issues array is still storable", () => {
   assert.equal(stored.storage_truncated, false);
 });
 
-test("breakdown defaults every severity to zero", () => {
-  assert.equal(formatBreakdown({}), "錯誤 0，警告 0，資訊 0");
+test("breakdown names only the severities present", () => {
+  assert.equal(formatBreakdown({}), "");
+  assert.equal(
+    formatBreakdown({ severity_counts: { error: 2, warning: 0, info: 4 } }),
+    "錯誤 2，資訊 4",
+  );
   assert.equal(
     formatBreakdown({ severity_counts: { error: 2, warning: 3, info: 4 } }),
     "錯誤 2，警告 3，資訊 4",
