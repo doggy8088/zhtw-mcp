@@ -41,17 +41,3 @@ export function storageResult(result) {
     storage_truncated: issues.length > MAX_STORED_ISSUES,
   };
 }
-
-export function formatBreakdown(result) {
-  const counts = result.severity_counts || {};
-  // Only the severities actually present: a row of zeroes repeats what the
-  // headline count has already said.
-  return [
-    ["錯誤", counts.error],
-    ["警告", counts.warning],
-    ["資訊", counts.info],
-  ]
-    .filter(([, count]) => count)
-    .map(([label, count]) => `${label} ${count}`)
-    .join("，");
-}

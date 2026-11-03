@@ -1,9 +1,6 @@
-import { formatBreakdown } from "./format.js";
-
 const form = document.querySelector("#scan-form");
 const statusNode = document.querySelector("#status");
 const countNode = document.querySelector("#count");
-const metaNode = document.querySelector("#meta");
 const issueListNode = document.querySelector("#issue-list");
 const scanButton = document.querySelector("#scan-button");
 const profileInput = document.querySelector("#profile");
@@ -104,7 +101,6 @@ function sendMessage(message) {
 
 function renderEmpty() {
   countNode.textContent = "—";
-  metaNode.textContent = "";
   issueListNode.innerHTML = "";
   renderStatus("尚未掃描", "idle");
 }
@@ -112,12 +108,8 @@ function renderEmpty() {
 function renderResult(result) {
   const count = result.badge_count || 0;
   countNode.textContent = String(count);
-  // The headline count and the issue list below say what was found and where
-  // it sits on the page.  This line only repeats the severity split, and only
-  // when there is one: a clean scan leaves it empty instead of spelling out
-  // zeroes.  The page title is deliberately out: the scan always ran on the
-  // page the reader is looking at.
-  metaNode.textContent = formatBreakdown(result);
+  // The count and the cards below say what was found; a severity tally would
+  // only recount them, and the card borders already carry the severity.
   renderStatus(count ? `找到 ${count} 個需留意的用語` : "沒有警告或錯誤", count ? "warn" : "ok");
   renderIssues(result.issues || []);
 }
