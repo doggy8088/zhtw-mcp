@@ -106,6 +106,7 @@
     elementGate = new WeakMap();
     const spans = [];
     const structuralCandidates = [];
+    const seamRanges = [];
     let text = "";
     let byteCursor = 0;
     let textCursor = 0;
@@ -147,9 +148,14 @@
       trailingBreaks = 0;
       leadingBreaks = 0;
       if (separator) {
+        // The separator between two units of page text is page furniture, not
+        // prose.  Recording its bytes is how the scanner learns the two sides
+        // are units of their own: no clause or sentence runs across the seam.
+        const seamStart = byteCursor;
         text += separator;
         byteCursor += utf8ByteLength(separator);
         textCursor += separator.length;
+        seamRanges.push({ start: seamStart, end: byteCursor });
       }
 
       const byteLength = utf8ByteLength(value);
@@ -189,6 +195,10 @@
     const excludedSpans = structuralCandidates
       .filter((candidate) => excludeFromScan(text, candidate))
       .map(({ start, end }) => ({ start, end }));
+    // Seam ranges skip the symbol gate above on purpose: they are excluded by
+    // being separators, whatever characters they carry.
+    excludedSpans.push(...seamRanges);
+    excludedSpans.sort((a, b) => a.start - b.start);
     return { text, spans, excludedSpans };
   }
 

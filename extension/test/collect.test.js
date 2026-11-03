@@ -143,6 +143,16 @@ function langTexts(collected) {
   );
 }
 
+/// The symbol runs that leave the scan.  The collector's own block seams are
+/// excluded alongside them and have a test of their own; the symbol assertions
+/// below are about which markers leave, so the seam separators drop out here.
+function symbolExclusions(collected) {
+  const bytes = Buffer.from(collected.text, "utf8");
+  return collected.excluded_spans
+    .map((span) => bytes.subarray(span.start, span.end).toString("utf8"))
+    .filter((value) => !/^\n+$/.test(value));
+}
+
 test("collected runs name the same bytes in the collected text", async () => {
   const body = el(
     "body",
@@ -236,10 +246,7 @@ test("standalone repeated symbols are excluded without hiding prose ellipses", a
   );
 
   const collected = await collect(body);
-  const bytes = Buffer.from(collected.text, "utf8");
-  const excluded = collected.excluded_spans.map((span) =>
-    bytes.subarray(span.start, span.end).toString("utf8"),
-  );
+  const excluded = symbolExclusions(collected);
 
   assert.deepEqual(excluded, ["###", ":::", "---", "...", "---"]);
   assert.equal(
@@ -262,10 +269,7 @@ test("a line of repeated punctuation stays in the scan", async () => {
   );
 
   const collected = await collect(body);
-  const bytes = Buffer.from(collected.text, "utf8");
-  const excluded = collected.excluded_spans.map((span) =>
-    bytes.subarray(span.start, span.end).toString("utf8"),
-  );
+  const excluded = symbolExclusions(collected);
 
   assert.deepEqual(excluded, ["```"]);
 });
@@ -284,12 +288,11 @@ test("an ellipsis in a sentence is prose, not a truncation marker", async () => 
 
   const collected = await collect(body);
   const bytes = Buffer.from(collected.text, "utf8");
+  const excluded = symbolExclusions(collected);
 
-  assert.equal(collected.excluded_spans.length, 1);
-  const [span] = collected.excluded_spans;
-  assert.equal(bytes.subarray(span.start, span.end).toString("utf8"), "...");
+  assert.deepEqual(excluded, ["..."]);
   // The one on a line of its own, at the tail.
-  assert.equal(span.end, bytes.length);
+  assert.equal(collected.excluded_spans.at(-1).end, bytes.length);
 });
 
 // An inline wrapper gives a marker a text node of its own without taking it
@@ -305,10 +308,7 @@ test("a marker wrapped inline mid-sentence stays in the scan", async () => {
   );
 
   const collected = await collect(body);
-  const bytes = Buffer.from(collected.text, "utf8");
-  const excluded = collected.excluded_spans.map((span) =>
-    bytes.subarray(span.start, span.end).toString("utf8"),
-  );
+  const excluded = symbolExclusions(collected);
 
   // Only the one that really does stand alone on its line.
   assert.deepEqual(excluded, [":::"]);
@@ -332,7 +332,33 @@ test("a br starts a new line in the flattened text", async () => {
   );
 
   assert.equal(collected.text, "段落\n:::\n註記\n前\n後");
-  assert.deepEqual(excluded, [":::"]);
+  // The four newlines are the collector's own line seams, the ::: a standalone
+  // symbol run: both are page structure rather than prose.
+  assert.deepEqual(excluded, ["\n", ":::", "\n", "\n", "\n"]);
+});
+
+// The separator between two blocks is page structure, not prose.  Reporting
+// it is what tells the scanner the two sides are units of their own, so no
+// clause or stacked-attribute run reads across the seam.
+test("a block separator is excluded as page structure", async () => {
+  const body = el(
+    "body",
+    {},
+    el("p", {}, txt("然後幫我寫一份完美的提示詞")),
+    el("p", {}, txt("我有一個 .NET 10 的專案")),
+  );
+
+  const collected = await collect(body);
+  const bytes = Buffer.from(collected.text, "utf8");
+  const excluded = collected.excluded_spans.map((span) =>
+    bytes.subarray(span.start, span.end).toString("utf8"),
+  );
+
+  assert.equal(
+    collected.text,
+    "然後幫我寫一份完美的提示詞\n我有一個 .NET 10 的專案",
+  );
+  assert.deepEqual(excluded, ["\n"]);
 });
 
 // A br only carries a break for text that is being collected.  Inside markup

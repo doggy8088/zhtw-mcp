@@ -3628,6 +3628,23 @@ fn scan_rhythm_only(text: &str) -> Vec<Issue> {
     issues
 }
 
+fn scan_indexed_with_excluded(
+    text: &str,
+    excluded: &[ByteRange],
+    domain: crate::engine::translationese_score::TranslationeseDomain,
+) -> Vec<Issue> {
+    let idx = BoundaryIndex::build(text, excluded);
+    let mut issues = Vec::new();
+    scan_translationese_indexed(
+        &mut Emitter::new(text, excluded, &mut issues),
+        &idx,
+        domain,
+        false,
+        Register::Casual,
+    );
+    issues
+}
+
 /// Select by detector identity rather than by the wording of the message.
 fn fires(issues: &[Issue], want: (PhaseFamily, PhasePass)) -> bool {
     issues.iter().any(|i| i.phase_family == Some(want))
@@ -3960,6 +3977,49 @@ fn zy5_fires_on_long_premodifier() {
     assert!(
         fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
         "expected ZY5: {issues:?}"
+    );
+}
+
+#[test]
+fn zy5_does_not_stack_across_a_collector_seam() {
+    // Two real reports.  The extension's collector joins DOM blocks with a
+    // separator it reports as page structure, and the runs it used to hand
+    // over were the two sides fused at that seam: a page title and a screen
+    // reader label against one prompt, and a prompt's tail against its own
+    // head where the page carried it twice.  Each side is a unit of its own.
+    for text in [
+        "和 Gemini 的對話\n你說了\n我有一個 .NET 10 的專案",
+        "然後幫我寫一份完美的提示詞\n我有一個 .NET 10 的專案",
+    ] {
+        let seams: Vec<ByteRange> = text
+            .match_indices('\n')
+            .map(|(at, _)| ByteRange {
+                start: at,
+                end: at + 1,
+            })
+            .collect();
+        let issues = scan_indexed_with_excluded(
+            text,
+            &seams,
+            crate::engine::translationese_score::TranslationeseDomain::General,
+        );
+        assert!(
+            !fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
+            "seam-crossing ZY5 for {text:?}: {issues:?}"
+        );
+    }
+
+    // The same characters with the seam read as prose do fire.  Without the
+    // page-structure ranges there is nothing separating the two cases.
+    let fused = "和 Gemini 的對話 你說了 我有一個 .NET 10 的專案";
+    let issues = scan_indexed_with_excluded(
+        fused,
+        &[],
+        crate::engine::translationese_score::TranslationeseDomain::General,
+    );
+    assert!(
+        fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
+        "expected the fused run to fire: {issues:?}"
     );
 }
 
