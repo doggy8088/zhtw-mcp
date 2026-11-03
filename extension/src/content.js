@@ -295,9 +295,16 @@
   }
 
   function shouldSkipElement(element) {
+    // A control is page chrome whatever element carries it.  The tag name
+    // alone misses the divs and spans wearing a role, whose icon text ("..."
+    // on a menu) would otherwise sit between the words around it and read as
+    // an ellipsis in a sentence.
     if (
       element.closest(
-        "script,style,noscript,textarea,input,select,option,button,code,pre,kbd,samp,var,[data-zhtw-mcp-ui]",
+        "script,style,noscript,textarea,input,select,option,button,summary," +
+          "code,pre,kbd,samp,var,[data-zhtw-mcp-ui]," +
+          "[role=button],[role=menuitem],[role=menuitemcheckbox]," +
+          "[role=menuitemradio],[role=tab],[role=switch],[role=option]",
       )
     ) {
       return true;

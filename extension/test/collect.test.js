@@ -40,12 +40,16 @@ class FakeElement {
   }
 
   // Only the two selector shapes content.js uses: a comma-separated list of
-  // tag names, and a bare attribute test.
+  // tag names, and an attribute test, bare or pinned to a value.
   matches(part) {
-    const attr = /^\[([^\]=]+)\]$/.exec(part);
-    return attr
-      ? Object.hasOwn(this.attrs, attr[1])
-      : this.tagName === part.toUpperCase();
+    const attr = /^\[([^=\]]+)(?:=([^\]]+))?\]$/.exec(part);
+    if (!attr) {
+      return this.tagName === part.toUpperCase();
+    }
+    if (!Object.hasOwn(this.attrs, attr[1])) {
+      return false;
+    }
+    return attr[2] === undefined || String(this.attrs[attr[1]]) === attr[2];
   }
 
   closest(selector) {
@@ -359,6 +363,34 @@ test("a block separator is excluded as page structure", async () => {
     "然後幫我寫一份完美的提示詞\n我有一個 .NET 10 的專案",
   );
   assert.deepEqual(excluded, ["\n"]);
+});
+
+// The disclosure summary is control text in the same way a button's label is.
+test("a summary label is control text", async () => {
+  const body = el(
+    "body",
+    {},
+    el("details", {}, el("summary", {}, txt("...")), el("p", {}, txt("內容"))),
+  );
+
+  const collected = await collect(body);
+  assert.equal(collected.text, "內容");
+});
+
+// A control is page chrome whatever element carries it.  The tag name alone
+// misses the divs and spans wearing a role, and the icon text of those ("..."
+// on a menu) would otherwise sit between the words around it and read as an
+// ellipsis in a sentence.
+test("role-based control text stays out of the scan", async () => {
+  const body = el(
+    "body",
+    {},
+    el("p", {}, txt("選項"), el("span", { role: "button" }, txt("...")), txt("關閉")),
+    el("p", {}, el("span", { role: "menuitem" }, txt("...")), txt("更多說明")),
+  );
+
+  const collected = await collect(body);
+  assert.equal(collected.text, "選項關閉\n更多說明");
 });
 
 // A br only carries a break for text that is being collected.  Inside markup
