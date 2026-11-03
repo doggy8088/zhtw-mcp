@@ -13,6 +13,7 @@ pub mod fixer;
 #[cfg(feature = "native")]
 pub mod mcp;
 pub mod rules;
+mod timing;
 #[cfg(feature = "native")]
 pub mod trace;
 #[cfg(feature = "browser-wasm")]

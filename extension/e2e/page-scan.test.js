@@ -13,7 +13,7 @@ async function extensionWorker(context) {
   return context.serviceWorkers()[0] ?? context.waitForEvent("serviceworker", { timeout: 30_000 });
 }
 
-test("headless extension bundle loads its popup and initializes WASM", { timeout: 60_000 }, async () => {
+test("headless extension bundle loads its popup and scans through WASM", { timeout: 60_000 }, async () => {
   const profile = await mkdtemp(path.join(tmpdir(), "zhtw-extension-"));
   let context;
 
@@ -37,10 +37,17 @@ test("headless extension bundle loads its popup and initializes WASM", { timeout
       await wasm.default({
         module_or_path: chrome.runtime.getURL("dist/zhtw_mcp_wasm_bg.wasm"),
       });
-      return typeof wasm.scan_text;
+      // Actually scanning, not just resolving the export: the browser build
+      // runs code paths native tests never reach, and an initialization-only
+      // check once let a scan that panicked on every input ship as green.
+      const result = JSON.parse(
+        wasm.scan_text("這個軟件的資料庫需要優化。", JSON.stringify({ profile: "base" })),
+      );
+      return { scanType: typeof wasm.scan_text, issues: result.issue_count };
     });
 
-    assert.equal(scanExport, "function");
+    assert.equal(scanExport.scanType, "function");
+    assert.ok(scanExport.issues >= 1);
   } finally {
     await context?.close();
     await rm(profile, { recursive: true, force: true });

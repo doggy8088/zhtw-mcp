@@ -52,6 +52,7 @@ use crate::rules::ruleset::{
 
 use self::ellipsis::scan_ellipsis;
 use self::quotes::{fix_quote_pairing, validate_quote_hierarchy};
+use crate::timing;
 
 // Scratch space: reusable buffers for per-scan mutable state
 
@@ -1005,7 +1006,7 @@ impl Scanner {
         case_rules: Vec<CaseRule>,
         filter: &rule_ir::ProfileFilter,
     ) -> Self {
-        let started = std::time::Instant::now();
+        let started = timing::now();
         let _span = tracing::info_span!(
             "build_ac",
             spelling_rule_count = spelling_rules.len() as u64,
@@ -1042,7 +1043,7 @@ impl Scanner {
             }
         };
         tracing::info!(
-            elapsed_ms = started.elapsed().as_millis() as u64,
+            elapsed_ms = timing::elapsed_ms(started),
             "build_ac completed"
         );
 
@@ -1226,7 +1227,7 @@ impl Scanner {
         cfg: ProfileConfig,
         content_type: ContentType,
     ) -> ScanOutput {
-        let started = std::time::Instant::now();
+        let started = timing::now();
         let _span = tracing::info_span!(
             "scan",
             content_length = text.len() as u64,
@@ -1329,7 +1330,7 @@ impl Scanner {
 
         tracing::info!(
             issue_count = output.issues.len() as u64,
-            elapsed_ms = started.elapsed().as_millis() as u64,
+            elapsed_ms = timing::elapsed_ms(started),
             "scan completed"
         );
         output
