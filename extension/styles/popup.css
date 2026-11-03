@@ -273,3 +273,9 @@ button:disabled {
   color: rgba(36, 29, 23, 0.65);
   font-size: 12px;
 }
+
+.issue__reason {
+  color: rgba(36, 29, 23, 0.55);
+  font-size: 11px;
+  line-height: 1.55;
+}

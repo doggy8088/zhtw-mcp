@@ -148,6 +148,17 @@ function renderIssues(issues) {
     detail.textContent = `${ruleTypeLabel(issue.rule_type)}${suggestion}`;
 
     item.append(found, detail);
+
+    // The label names the family; the reason says which words to look at and
+    // why.  The scanner writes one per finding, and an issue without one keeps
+    // the card as it always was.
+    if (issue.context) {
+      const reason = document.createElement("span");
+      reason.className = "issue__reason";
+      reason.textContent = issue.context;
+      item.append(reason);
+    }
+
     issueListNode.append(item);
   });
 }
