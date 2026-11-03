@@ -116,6 +116,29 @@ h1 {
   margin-top: 14px;
 }
 
+.settings {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 252, 244, 0.72);
+  font-size: 13px;
+}
+
+.settings > summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  font-weight: 700;
+}
+
+.settings[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.settings__body {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
 .field,
 .toggle {
   display: grid;

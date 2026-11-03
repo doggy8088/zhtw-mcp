@@ -104,7 +104,7 @@ function sendMessage(message) {
 
 function renderEmpty() {
   countNode.textContent = "—";
-  metaNode.textContent = "按下檢查後，只會讀取目前分頁可見文字。";
+  metaNode.textContent = "";
   issueListNode.innerHTML = "";
   renderStatus("尚未掃描", "idle");
 }
