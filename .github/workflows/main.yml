@@ -404,7 +404,19 @@ jobs:
           cp -R extension/dist/snippets "$EXTENSION_PACKAGE_DIR"/dist/
         fi
         cp extension/icons/icon-{16,32,48,128}.png "$EXTENSION_PACKAGE_DIR"/icons/
-        (cd extension-package && zip -r "../$EXTENSION_ZIP" zhtw-mcp-extension)
+        # Zip the extension itself, not its parent directory: Chrome expects
+        # manifest.json at the archive root, whether the zip is uploaded to the
+        # store or unpacked by hand.
+        (cd "$EXTENSION_PACKAGE_DIR" && zip -r "../../$EXTENSION_ZIP" .)
+
+    - name: Validate distributable extension
+      run: |
+        test -f "$EXTENSION_PACKAGE_DIR/manifest.json"
+        test -f "$EXTENSION_PACKAGE_DIR/dist/zhtw_mcp_wasm.js"
+        test -f "$EXTENSION_PACKAGE_DIR/dist/zhtw_mcp_wasm_bg.wasm"
+        unzip -l "$EXTENSION_ZIP" manifest.json
+        unzip -l "$EXTENSION_ZIP" dist/zhtw_mcp_wasm.js
+        unzip -l "$EXTENSION_ZIP" dist/zhtw_mcp_wasm_bg.wasm
 
     # Deliberately NOT named "zhtw-mcp-*": publish-latest downloads that
     # pattern into ./dist, and an unpacked tree there would be checksummed and
