@@ -295,6 +295,18 @@ test("the popup offers exactly the symbol handling modes both sides accept", () 
   assert.ok(offered.includes("warn"), "warn is the fallback and must be offered");
 });
 
+// Clicking a result card names one message in all three files it crosses:
+// popup sends it, background routes it to the tab, content lands on the mark.
+// A rename on one side and not the others fails closed: the click answers
+// "unknown message" and the page never moves.
+test("the focus message crosses popup, background and content with one name", () => {
+  assert.match(src("popup.js"), /type: "FOCUS_ISSUE"/);
+  assert.match(src("background.js"), /message\?\.type === "FOCUS_ISSUE"/);
+  assert.match(src("content.js"), /message\?\.type === "FOCUS_ISSUE"/);
+  // The mark carries the index the click sent, or the lookup finds nothing.
+  assert.match(src("content.js"), /zhtwMcpIssue = String\(index\)/);
+});
+
 // editable.js puts its overlay in the page, and collectVisibleText walks the
 // page: the marker one writes has to be the one the other skips, or the warning
 // text joins the scan and reports itself.

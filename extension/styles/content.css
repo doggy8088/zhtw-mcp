@@ -24,6 +24,35 @@ mark.zhtw-mcp-highlight--info {
   text-decoration-color: #375d81;
 }
 
+/* The pulse that answers a click on a popup result: the mark flashes and two
+   rings spread out of it, so the eye lands on the exact characters even in a
+   dense paragraph.  The flash is brass rather than the mark's own severity
+   colour, which the background returns to as the animation settles. */
+mark.zhtw-mcp-focus {
+  animation: zhtw-mcp-focus-pulse 0.85s ease-out 2;
+}
+
+@keyframes zhtw-mcp-focus-pulse {
+  0% {
+    background: rgba(255, 224, 130, 0.95);
+    box-shadow: 0 0 0 0 rgba(180, 119, 18, 0.6);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0.45em rgba(180, 119, 18, 0);
+  }
+}
+
+/* Nothing moves under reduced motion: a steady outline marks the spot just as
+   well, and the timer that clears the class treats both cases the same. */
+@media (prefers-reduced-motion: reduce) {
+  mark.zhtw-mcp-focus {
+    animation: none;
+    outline: 2px solid rgba(180, 119, 18, 0.8);
+    outline-offset: 0.12em;
+  }
+}
+
 /* Fixed rather than in flow: the field it belongs to can sit in a flex or grid
    container, or inside a label, where an extra block child would move the page
    around. */

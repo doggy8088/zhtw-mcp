@@ -132,9 +132,22 @@ function renderIssues(issues) {
     return;
   }
 
-  for (const issue of issues.slice(0, 30)) {
+  issues.slice(0, 30).forEach((issue, index) => {
     const item = document.createElement("li");
     item.className = `issue issue--${issue.severity}`;
+    // The card is the way back to the page: clicking it moves the mark into
+    // view and pulses it.  The button role and the two keys give keyboard
+    // users the same trip.
+    item.setAttribute("role", "button");
+    item.tabIndex = 0;
+    item.title = "在頁面上標示這個問題";
+    item.addEventListener("click", () => void focusIssue(index));
+    item.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        void focusIssue(index);
+      }
+    });
 
     const found = document.createElement("span");
     found.className = "issue__found";
@@ -149,6 +162,15 @@ function renderIssues(issues) {
 
     item.append(found, detail);
     issueListNode.append(item);
+  });
+}
+
+// A mark the collector could not map has nothing to land on, and the console
+// is the only place that needs to hear about it.
+async function focusIssue(index) {
+  const response = await sendMessage({ type: "FOCUS_ISSUE", index });
+  if (!response.ok) {
+    console.warn("Could not move to the issue on the page.", response.error);
   }
 }
 

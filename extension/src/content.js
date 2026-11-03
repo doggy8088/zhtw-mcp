@@ -92,6 +92,11 @@
         sendResponse({ ok: true, ...summary });
         return true;
       }
+
+      if (message?.type === "FOCUS_ISSUE") {
+        sendResponse(focusIssue(Number(message.index)));
+        return true;
+      }
     } catch (error) {
       sendResponse({ ok: false, error: error.message });
       return true;
@@ -323,13 +328,38 @@
     );
   }
 
+  // Bring one issue's marks into view and pulse them.  The pulse class comes
+  // off on a timer rather than on animationend: under reduced motion the
+  // animation never runs, and a class that never left would stop the next
+  // click from pulsing the same mark again.
+  function focusIssue(index) {
+    const marks = document.querySelectorAll(`mark[data-zhtw-mcp-issue="${index}"]`);
+    if (!marks.length) {
+      return { ok: false, error: "That issue has no mark on this page." };
+    }
+    marks[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    for (const mark of marks) {
+      mark.classList.remove("zhtw-mcp-focus");
+      // Reflow first, so a repeated click on the same card restarts the pulse.
+      void mark.offsetWidth;
+      mark.classList.add("zhtw-mcp-focus");
+      setTimeout(() => mark.classList.remove("zhtw-mcp-focus"), 1800);
+    }
+    return { ok: true };
+  }
+
   function highlightIssues(issues) {
     clearHighlights();
     let highlighted = 0;
     let skipped = 0;
 
-    const ordered = [...issues].sort((a, b) => b.offset - a.offset);
-    for (const issue of ordered) {
+    // Reverse document order keeps every later range valid as the marks before
+    // it move.  The index carried onto each mark is the issue's place in the
+    // list the popup shows, and what FOCUS_ISSUE comes back with.
+    const ordered = issues
+      .map((issue, index) => ({ issue, index }))
+      .sort((a, b) => b.issue.offset - a.issue.offset);
+    for (const { issue, index } of ordered) {
       const ranges = issueToRanges(issue);
       if (!ranges.length) {
         skipped += 1;
@@ -340,7 +370,7 @@
       for (const range of ranges.reverse()) {
         const mark = document.createElement("mark");
         mark.className = `zhtw-mcp-highlight zhtw-mcp-highlight--${issue.severity}`;
-        mark.dataset.zhtwMcpIssue = "true";
+        mark.dataset.zhtwMcpIssue = String(index);
         mark.title = tooltipForIssue(issue);
 
         try {

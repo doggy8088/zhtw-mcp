@@ -226,6 +226,20 @@ button:disabled {
   font-weight: 900;
 }
 
+.issue[role="button"] {
+  cursor: pointer;
+}
+
+.issue[role="button"]:hover {
+  background: rgba(255, 252, 244, 0.95);
+  box-shadow: 0 6px 18px rgba(67, 43, 21, 0.12);
+}
+
+.issue[role="button"]:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
 .issue__detail {
   color: rgba(36, 29, 23, 0.65);
   font-size: 12px;

@@ -39,6 +39,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message?.type === "FOCUS_ISSUE") {
+    focusActiveTabIssue(message.index)
+      .then(sendResponse)
+      .catch((error) => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
   return false;
 });
 
@@ -119,6 +126,16 @@ async function ensureContentScript(tabId) {
 async function getActiveTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   return tab;
+}
+
+// The popup moves the page for a clicked result.  The marks it lands on belong
+// to the tab the scan ran against, which is the tab the popup is open for.
+async function focusActiveTabIssue(index) {
+  const tab = await getActiveTab();
+  if (!tab?.id) {
+    throw new Error("No active tab is available.");
+  }
+  return sendTabMessage(tab.id, { type: "FOCUS_ISSUE", index });
 }
 
 function sendTabMessage(tabId, message) {
