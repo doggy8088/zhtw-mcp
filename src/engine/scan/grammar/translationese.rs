@@ -1266,8 +1266,9 @@ fn walk_zy3b_chain(s: &str, start: usize) -> (usize, usize) {
 
 // ZY5: long pre-modifier 定語堆疊 (Red Flag 3). Parser-free heuristic: within
 // one sentence, find each maximal span bounded by "，、。；：" (no internal
-// commas) that ends in "的<noun>". Flag when char-length ≥zy5_min_chars AND the
-// span contains ≥zy5_min_de_count 的 occurrences.
+// commas) that ends in "的<noun>". Flag when the span's chain, its longest
+// run of CJK without an aside, a dash or another pause in the way, reaches
+// zy5_min_chars AND the span contains ≥zy5_min_de_count 的 occurrences.
 //
 // The rhythm flag relaxes the second condition to what the span already
 // guarantees. The 的-count gate is the only thing between this detector and a
@@ -1275,11 +1276,11 @@ fn walk_zy3b_chain(s: &str, start: usize) -> (usize, usize) {
 // breath as one with three, and the count is there to keep the default pass
 // conservative rather than because a single 的 makes the span acceptable.
 //
-// Removing a gate needs a gate put back, or a Latin identifier run and a
-// parenthetical aside both start counting as breathless prose. The rhythm
-// axis's own fragment test takes over: it counts CJK ideographs only and treats
-// brackets and dashes as the pauses they are, neither of which ZY5's own
-// character count and SPAN_BREAKERS list do.
+// The chain gate is what keeps the Latin identifier run and the parenthetical
+// aside out of the count: both carry reading load without carrying the stacked
+// modifiers, and a raw character count read an API enumeration as one runaway
+// clause.  A quotation mark is not a pause here even though the rhythm axis
+// counts it as one: the word it wraps is part of the chain it emphasises.
 //
 // The relaxation reaches ZY5 only when the translationese pass is running,
 // because a threshold cannot relax a detector that is switched off. Both
@@ -1667,6 +1668,18 @@ fn emit_zy5_span_if_qualifies(
     // hold more 的, so a span that clears the calibrated count is the span the
     // default pass would have reported.
     let relaxed_only = de_count < calibrated_min_de;
+
+    if !relaxed_only {
+        // The calibrated length gate measures the chain rather than the raw
+        // span: a Latin identifier run and a parenthetical aside are not the
+        // breathless modifier chain this detector is about, and counting them
+        // raw let an API enumeration report as one runaway clause.  A
+        // quotation mark stays inside the chain on purpose, the way
+        // longest_chain_run measures it.
+        if longest_chain_run(&span[..candidate_end]) < min_chars {
+            return;
+        }
+    }
 
     // The gate that replaces the relaxed 的 count, so it applies only where
     // that relaxation is what let the span through. Applying it to a span the

@@ -4009,17 +4009,64 @@ fn zy5_does_not_stack_across_a_collector_seam() {
         );
     }
 
-    // The same characters with the seam read as prose do fire.  Without the
-    // page-structure ranges there is nothing separating the two cases.
-    let fused = "和 Gemini 的對話 你說了 我有一個 .NET 10 的專案";
+    // The seam is what does the work.  A breathless modifier chain reports
+    // whole; the same characters with a collector seam between them come back
+    // under the floor one side at a time; and without the page-structure
+    // ranges the newline is not a pause, so the two sides still read as one
+    // breath and report.
+    let domain = crate::engine::translationese_score::TranslationeseDomain::General;
+    let fused = "那個在車站外面的雨裡等了三個小時的男人終於放棄了";
+    let split = "那個在車站外面的雨裡\n等了三個小時的男人終於放棄了";
+    let seams: Vec<ByteRange> = split
+        .match_indices('\n')
+        .map(|(at, _)| ByteRange {
+            start: at,
+            end: at + 1,
+        })
+        .collect();
+
+    for (text, seams) in [(fused, &[][..]), (split, &[][..])] {
+        let issues = scan_indexed_with_excluded(text, seams, domain);
+        assert!(
+            fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
+            "expected the run to fire for {text:?}: {issues:?}"
+        );
+    }
+    let issues = scan_indexed_with_excluded(split, &seams, domain);
+    assert!(
+        !fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
+        "seam-crossing ZY5 for {split:?}: {issues:?}"
+    );
+}
+
+#[test]
+fn zy5_reads_the_breath_not_the_raw_span() {
+    // Real report: an API enumeration whose Latin identifiers and empty
+    // brackets carried the span past a raw character count while the reader's
+    // breath stayed short.  The longest pause-free CJK run is
+    // 目前沒有獨立的按次收費標價, thirteen characters under the general floor.
+    let text = "Ollama Cloud 的 Web Search () 與 Web Fetch () 目前沒有獨立的按次收費標價";
     let issues = scan_indexed_with_excluded(
-        fused,
+        text,
+        &[],
+        crate::engine::translationese_score::TranslationeseDomain::General,
+    );
+    assert!(
+        !fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
+        "identifier run counted as breath: {issues:?}"
+    );
+
+    // The same stacked modifiers without the identifiers still report: the
+    // gate measures the breath, not the punctuation around it.
+    let plain = "雲端搜尋與檔案抓取工具目前沒有獨立的按次收費的計價方案";
+    let issues = scan_indexed_with_excluded(
+        plain,
         &[],
         crate::engine::translationese_score::TranslationeseDomain::General,
     );
     assert!(
         fires(&issues, (PhaseFamily::LongPremodifier, PhasePass::Lexical)),
-        "expected the fused run to fire: {issues:?}"
+        "expected the CJK run to fire: {issues:?}"
     );
 }
 

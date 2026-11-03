@@ -64,14 +64,38 @@ fn rhythm_cjk_len(s: &str) -> usize {
 
 /// The longest run of CJK characters in `s` uninterrupted by a pause breaker.
 ///
-/// Shared with ZY5's relaxed path, which is why it lives beside the constants
-/// rather than inside the long-sentence check: relaxing ZY5's 的 gate hands
-/// this the job of deciding whether the span is really one breath.
+/// Shared with ZY5's chain gate, which is why it lives beside the constants
+/// rather than inside the long-sentence check: both are answering whether the
+/// words on the page are really one breath, and one definition keeps a Latin
+/// identifier run or a parenthetical aside out of both counts.  The two then
+/// disagree about one character on purpose, and longest_chain_run says why.
 pub(super) fn longest_pause_free_run(s: &str) -> usize {
+    longest_run_skipping(s, RHYTHM_PAUSE_BREAKERS)
+}
+
+/// The quotation marks in the pause list.  For the breath a sentence offers,
+/// a quoted word is a beat of its own.  For the question ZY5 asks, whether one
+/// modifier chain runs on, the quoted word is inside the chain it emphasises,
+/// and 「核心」 does not split 複雜的「核心」的系統設計模組 in two.
+const CHAIN_QUOTES: &[char] = &[
+    '「', '」', '『', '』', '"', '\u{201C}', '\u{201D}', '\u{2018}', '\u{2019}', '\'',
+];
+
+/// Like longest_pause_free_run, but a quotation mark is not a pause.
+pub(super) fn longest_chain_run(s: &str) -> usize {
+    let breakers: Vec<char> = RHYTHM_PAUSE_BREAKERS
+        .iter()
+        .copied()
+        .filter(|ch| !CHAIN_QUOTES.contains(ch))
+        .collect();
+    longest_run_skipping(s, &breakers)
+}
+
+fn longest_run_skipping(s: &str, breakers: &[char]) -> usize {
     let mut longest = 0usize;
     let mut current = 0usize;
     for ch in s.chars() {
-        if RHYTHM_PAUSE_BREAKERS.contains(&ch) {
+        if breakers.contains(&ch) {
             longest = longest.max(current);
             current = 0;
         } else if is_cjk_ideograph(ch) {
