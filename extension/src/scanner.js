@@ -1,18 +1,21 @@
-import init, { scan_text } from "../dist/zhtw_mcp_wasm.js";
+import initWasm, { scan_text as scanTextWasm } from "../dist/zhtw_mcp_wasm.js";
 
-let initPromise;
+let wasmModulePromise;
+let scanTextBinding;
 
 async function loadWasmModule() {
-  if (!initPromise) {
-    initPromise = (async () => {
+  if (!wasmModulePromise) {
+    wasmModulePromise = (async () => {
       const wasmUrl = chrome.runtime.getURL("dist/zhtw_mcp_wasm_bg.wasm");
-      await init({ module_or_path: wasmUrl });
+      await initWasm(wasmUrl);
+      scanTextBinding = scanTextWasm;
     })();
   }
   try {
-    await initPromise;
+    await wasmModulePromise;
   } catch (error) {
-    initPromise = undefined;
+    wasmModulePromise = undefined;
+    scanTextBinding = undefined;
     throw error;
   }
 }
@@ -26,6 +29,6 @@ export async function scanText(text, options = {}) {
     );
   }
 
-  const resultJson = scan_text(text, JSON.stringify(options));
+  const resultJson = scanTextBinding(text, JSON.stringify(options));
   return JSON.parse(resultJson);
 }
