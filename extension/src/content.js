@@ -331,7 +331,27 @@
       style.display === "none" ||
       style.visibility === "hidden" ||
       style.visibility === "collapse" ||
-      Number(style.opacity) === 0
+      Number(style.opacity) === 0 ||
+      visuallyHidden(style)
+    );
+  }
+
+  // The visually-hidden pattern: text kept in the accessibility tree but
+  // clipped or shrunk to nothing on screen.  Screen-reader mirrors of visible
+  // text wear it, and a mirror scanned as prose counts every sentence twice
+  // and lends its own truncation "…" to the ellipsis rules.
+  function visuallyHidden(style) {
+    const clip = (style.clip || "").replace(/\s|px/g, "");
+    if (clip === "rect(0,0,0,0)") {
+      return true;
+    }
+    if ((style.clipPath || "").startsWith("inset(50%")) {
+      return true;
+    }
+    return (
+      (style.overflow === "hidden" || style.overflow === "clip") &&
+      parseFloat(style.width) <= 1 &&
+      parseFloat(style.height) <= 1
     );
   }
 

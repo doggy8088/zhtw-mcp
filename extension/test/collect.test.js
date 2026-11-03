@@ -77,10 +77,11 @@ function installDom(body) {
     FILTER_SKIP: 3,
   };
   globalThis.Node = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
-  globalThis.getComputedStyle = () => ({
+  globalThis.getComputedStyle = (element) => ({
     display: "block",
     visibility: "visible",
     opacity: "1",
+    ...(element?.__style || {}),
   });
   globalThis.document = {
     body,
@@ -391,6 +392,39 @@ test("role-based control text stays out of the scan", async () => {
 
   const collected = await collect(body);
   assert.equal(collected.text, "選項關閉\n更多說明");
+});
+
+// The screen-reader mirror of a visible query wears the visually-hidden
+// pattern: text kept for the accessibility tree but clipped to nothing.  A
+// mirror scanned as prose counts every sentence twice and lends its own
+// truncation "…" to the ellipsis rules.
+test("a clipped screen-reader mirror stays out of the scan", async () => {
+  const mirror = el(
+    "h5",
+    {},
+    txt("請問這句話是什麼意思？\nManaged account policy could not be refreshed: Retryi… "),
+  );
+  mirror.__style = { clip: "rect(0px, 0px, 0px, 0px)" };
+  const body = el(
+    "body",
+    {},
+    el("p", {}, txt("請問這句話是什麼意思？")),
+    mirror,
+    el("p", {}, txt("回覆內容")),
+  );
+
+  const collected = await collect(body);
+  assert.equal(collected.text, "請問這句話是什麼意思？\n回覆內容");
+});
+
+// The one-pixel box hides text the same way a zero rect does.
+test("the one-pixel hiding trick is hidden too", async () => {
+  const tiny = el("span", {}, txt("…"));
+  tiny.__style = { width: "1px", height: "1px", overflow: "hidden" };
+  const body = el("body", {}, el("p", {}, txt("前文"), tiny, txt("後文")));
+
+  const collected = await collect(body);
+  assert.equal(collected.text, "前文後文");
 });
 
 // A br only carries a break for text that is being collected.  Inside markup
