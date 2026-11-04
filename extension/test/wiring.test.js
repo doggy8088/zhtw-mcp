@@ -55,18 +55,20 @@ function destructuredFrom(source, object) {
 // mis-wired import would therefore surface first in a browser, where nobody is
 // watching a console.  Checking the names against the real export surface is
 // cheap and needs neither wasm nor a DOM.
-test("every name background.js imports from format.js is exported", () => {
-  const imported = namedImportsFrom(src("background.js"), "./format.js");
+for (const file of ["background.js", "popup.js"]) {
+  test(`every name ${file} imports from format.js is exported`, () => {
+    const imported = namedImportsFrom(src(file), "./format.js");
 
-  assert.ok(imported.length > 0, "background.js should import from format.js");
-  for (const name of imported) {
-    // Presence, not type: any file is entitled to what format.js exports.
-    assert.ok(
-      name in format,
-      `format.js does not export ${name}, but background.js imports it`,
-    );
-  }
-});
+    assert.ok(imported.length > 0, `${file} should import from format.js`);
+    for (const name of imported) {
+      // Presence, not type: any file is entitled to what format.js exports.
+      assert.ok(
+        name in format,
+        `format.js does not export ${name}, but ${file} imports it`,
+      );
+    }
+  });
+}
 
 // Both are injected as classic scripts, so a destructure is a plain property
 // read at runtime: a missing name is `undefined` and fails on first call, not

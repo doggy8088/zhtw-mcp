@@ -1,4 +1,5 @@
 import "./shared.js";
+import { buildFixPrompt } from "./format.js";
 
 const { ruleTypeLabel } = globalThis.ZhtwExtensionShared;
 
@@ -12,6 +13,8 @@ const spacingInput = document.querySelector("#spacing");
 const relaxedInput = document.querySelector("#relaxed");
 const offInput = document.querySelector("#off");
 const symbolHandlingInput = document.querySelector("#symbol-handling");
+const copyPromptButton = document.querySelector("#copy-prompt");
+let lastResult = null;
 const SYMBOL_HANDLING_KEY = "symbol_handling";
 const SYMBOL_HANDLING_MODES = ["off", "remove", "warn"];
 
@@ -101,13 +104,36 @@ function sendMessage(message) {
 }
 
 function renderResult(result) {
+  lastResult = result;
   const count = result.badge_count || 0;
   countNode.textContent = String(count);
   // The count and the cards below say what was found; a severity tally would
   // only recount them, and the card borders already carry the severity.
   renderStatus(count ? `找到 ${count} 個需留意的用語` : "沒有警告或錯誤", count ? "warn" : "ok");
   renderIssues(result.issues || []);
+  // The prompt is the findings handed to an agent, so it earns its row only
+  // while there are findings to hand over.
+  copyPromptButton.hidden = !(result.issues || []).length;
 }
+
+// The findings leave as one prompt: the same reasons the cards show, in a form
+// an agent can apply without the extension in the loop.
+copyPromptButton.addEventListener("click", async () => {
+  if (!lastResult) {
+    return;
+  }
+  const prompt = buildFixPrompt(lastResult.issues || [], lastResult.page_title || "");
+  try {
+    await navigator.clipboard.writeText(prompt);
+  } catch (error) {
+    console.warn("Could not copy the fix prompt.", error);
+    return;
+  }
+  copyPromptButton.textContent = "已複製 ✓";
+  setTimeout(() => {
+    copyPromptButton.textContent = "✦ 複製修正提示詞";
+  }, 1600);
+});
 
 function renderIssues(issues) {
   issueListNode.innerHTML = "";

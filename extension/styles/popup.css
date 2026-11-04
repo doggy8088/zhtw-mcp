@@ -169,7 +169,7 @@ select {
    a small pill in the status chip's language, tucked into the card's corner.
    Bordered and tinted rather than bare: it has to read as a button at a
    glance, not as a label. */
-button {
+#scan-button {
   position: absolute;
   top: 14px;
   right: 14px;
@@ -192,30 +192,102 @@ button {
     color 0.18s ease;
 }
 
-button:hover {
+#scan-button:hover {
   border-color: rgba(179, 38, 30, 0.5);
   background: rgba(179, 38, 30, 0.08);
   box-shadow: 0 3px 10px rgba(179, 38, 30, 0.14);
 }
 
-button:active {
+#scan-button:active {
   background: rgba(179, 38, 30, 0.14);
   box-shadow: none;
 }
 
-button:focus-visible {
+#scan-button:focus-visible {
   outline: 2px solid var(--seal);
   outline-offset: 2px;
 }
 
-button:disabled {
+#scan-button:disabled {
   cursor: progress;
   opacity: 0.45;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  button {
+  #scan-button {
     transition: none;
+  }
+}
+
+/* The prompt button is the one flourish on the paper: ink fill in a slowly
+   turning iridescent frame, a sparkle at its shoulder.  It carries the only
+   saturated motion in the popup, and the only dark surface, so the eye finds
+   the way out to an agent without a word of instruction. */
+@property --prompt-frame-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.copy-prompt {
+  --prompt-frame-angle: 0deg;
+  margin-top: 16px;
+  padding: 13px 18px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(var(--ink), var(--ink)) padding-box,
+    conic-gradient(
+        from var(--prompt-frame-angle),
+        var(--seal),
+        var(--brass),
+        #8a7bb0,
+        #3f7f8f,
+        var(--brass),
+        var(--seal)
+      )
+      border-box;
+  color: #fdf6e8;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 12px 28px rgba(36, 29, 23, 0.24),
+    inset 0 1px 0 rgba(253, 246, 232, 0.14);
+  animation: prompt-frame-turn 7s linear infinite;
+  transition:
+    box-shadow 0.22s ease,
+    transform 0.12s ease;
+}
+
+@keyframes prompt-frame-turn {
+  to {
+    --prompt-frame-angle: 360deg;
+  }
+}
+
+.copy-prompt:hover {
+  box-shadow:
+    0 16px 36px rgba(36, 29, 23, 0.3),
+    0 0 26px rgba(180, 119, 18, 0.28),
+    inset 0 1px 0 rgba(253, 246, 232, 0.18);
+}
+
+.copy-prompt:active {
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px rgba(36, 29, 23, 0.28);
+}
+
+.copy-prompt:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-prompt {
+    animation: none;
   }
 }
 
