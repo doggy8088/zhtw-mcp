@@ -1,10 +1,12 @@
 {
   "name": "zhtw-mcp-extension",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "icons": "sh scripts/generate-icons.sh",
+    "store:package": "sh scripts/package-store.sh",
+    "store:screenshots": "node scripts/store-screenshots.mjs",
     "test": "npm run test:unit",
     "test:all": "npm run test:unit && npm run test:headless",
     "test:headless": "node --test e2e/*.test.js",
