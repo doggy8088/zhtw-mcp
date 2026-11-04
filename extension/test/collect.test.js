@@ -428,18 +428,70 @@ test("the one-pixel hiding trick is hidden too", async () => {
 });
 
 // A br only carries a break for text that is being collected.  Inside markup
-// the text side excludes, it would contribute a line the page never reports.
+// the text side still skips, it would contribute a line the page never
+// reports.
 test("a br inside skipped markup contributes no line break", async () => {
   const body = el(
     "body",
     {},
-    el("p", {}, txt("前"), el("code", {}, txt("a"), el("br", {}), txt("b")), txt("後")),
+    el("p", {}, txt("前"), el("textarea", {}, txt("a"), el("br", {}), txt("b")), txt("後")),
   );
 
   const collected = await collect(body);
 
   assert.equal(collected.text, "前後");
   assert.deepEqual(collected.excluded_spans, []);
+});
+
+// Code markup joins the scan as page structure rather than vanishing from it.
+// The page reads "claude、codex" through their code chips, and a chip that
+// disappears fuses the punctuation beside it into runs no reader ever wrote.
+test("inline code keeps the punctuation around it apart", async () => {
+  const body = el(
+    "body",
+    {},
+    el(
+      "p",
+      {},
+      txt("(支援的 "),
+      el("code", {}, txt("claude")),
+      txt("、"),
+      el("code", {}, txt("codex")),
+      txt("、"),
+      el("code", {}, txt("gemini")),
+      txt(" 等 CLI）"),
+    ),
+  );
+
+  const collected = await collect(body);
+  const bytes = Buffer.from(collected.text, "utf8");
+  const excluded = collected.excluded_spans.map((span) =>
+    bytes.subarray(span.start, span.end).toString("utf8"),
+  );
+
+  assert.equal(collected.text, "(支援的 claude、codex、gemini 等 CLI）");
+  assert.deepEqual(excluded, ["claude", "codex", "gemini"]);
+});
+
+// A code block keeps its lines inside one excluded run, with the block seams
+// around it left to the block boundaries that already report them.
+test("a code block joins the text as excluded page structure", async () => {
+  const body = el(
+    "body",
+    {},
+    el("p", {}, txt("前")),
+    el("pre", {}, el("code", {}, txt("line1"), el("br", {}), txt("line2"))),
+    el("p", {}, txt("後")),
+  );
+
+  const collected = await collect(body);
+  const bytes = Buffer.from(collected.text, "utf8");
+  const excluded = collected.excluded_spans.map((span) =>
+    bytes.subarray(span.start, span.end).toString("utf8"),
+  );
+
+  assert.equal(collected.text, "前\nline1\nline2\n後");
+  assert.deepEqual(excluded, ["\n", "line1\nline2", "\n"]);
 });
 
 // Two breaks are a blank line, and one closing a block is the break the block

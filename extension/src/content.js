@@ -112,6 +112,8 @@
     const spans = [];
     const structuralCandidates = [];
     const seamRanges = [];
+    const codeRanges = [];
+    let codeRun = null;
     let text = "";
     let byteCursor = 0;
     let textCursor = 0;
@@ -156,14 +158,37 @@
         // The separator between two units of page text is page furniture, not
         // prose.  Recording its bytes is how the scanner learns the two sides
         // are units of their own: no clause or sentence runs across the seam.
+        // Inside a code passage the separator is part of the passage instead:
+        // one excluded run for a multi-line block, not a seam per line.
         const seamStart = byteCursor;
         text += separator;
         byteCursor += utf8ByteLength(separator);
         textCursor += separator.length;
-        seamRanges.push({ start: seamStart, end: byteCursor });
+        if (codeRun && isCodeText(node)) {
+          codeRun.end = byteCursor;
+        } else {
+          seamRanges.push({ start: seamStart, end: byteCursor });
+        }
       }
 
       const byteLength = utf8ByteLength(value);
+
+      // Code markup joins the scan as page structure rather than prose: the
+      // words around a code chip read through it ("claude、codex"), and a chip
+      // that vanishes fuses the punctuation beside it into runs no reader ever
+      // wrote.  One run per passage, separators included, so a multi-line
+      // block stays the single range it is on the page.
+      if (isCodeText(node)) {
+        if (codeRun) {
+          codeRun.end = byteCursor + byteLength;
+        } else {
+          codeRun = { start: byteCursor, end: byteCursor + byteLength };
+        }
+      } else if (codeRun) {
+        codeRanges.push(codeRun);
+        codeRun = null;
+      }
+
       for (const functionalSymbolRange of standaloneSymbolRuns(value)) {
         structuralCandidates.push({
           start: byteCursor + utf8ByteLength(value.slice(0, functionalSymbolRange.start)),
@@ -197,14 +222,26 @@
       previousBlock = currentBlock;
     }
 
+    if (codeRun) {
+      codeRanges.push(codeRun);
+    }
+
     const excludedSpans = structuralCandidates
       .filter((candidate) => excludeFromScan(text, candidate))
       .map(({ start, end }) => ({ start, end }));
-    // Seam ranges skip the symbol gate above on purpose: they are excluded by
-    // being separators, whatever characters they carry.
-    excludedSpans.push(...seamRanges);
+    // Seam ranges and code runs skip the symbol gate above on purpose: they
+    // are excluded by being structure rather than prose, whatever characters
+    // they carry.
+    excludedSpans.push(...seamRanges, ...codeRanges);
     excludedSpans.sort((a, b) => a.start - b.start);
     return { text, spans, excludedSpans };
+  }
+
+  // Code markup keeps its text in the scan and its bytes out of the findings,
+  // which is the opposite of what the skipped markup above gets.  See the run
+  // tracking in collectVisibleText for why the text has to stay.
+  function isCodeText(node) {
+    return Boolean(node.parentElement?.closest("code,pre,kbd,samp,var"));
   }
 
   // Only a functional marker leaves the scan, plus the truncation ellipsis,
@@ -298,11 +335,12 @@
     // A control is page chrome whatever element carries it.  The tag name
     // alone misses the divs and spans wearing a role, whose icon text ("..."
     // on a menu) would otherwise sit between the words around it and read as
-    // an ellipsis in a sentence.
+    // an ellipsis in a sentence.  Code markup is deliberately absent: its text
+    // joins the scan as page structure instead of vanishing from it.
     if (
       element.closest(
         "script,style,noscript,textarea,input,select,option,button,summary," +
-          "code,pre,kbd,samp,var,[data-zhtw-mcp-ui]," +
+          "[data-zhtw-mcp-ui]," +
           "[role=button],[role=menuitem],[role=menuitemcheckbox]," +
           "[role=menuitemradio],[role=tab],[role=switch],[role=option]",
       )
