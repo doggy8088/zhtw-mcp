@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "zhtw-mcp Page Checker",
+  "name": "字正腔圓",
   "description": "Validate visible page text for non-standard Traditional Chinese usage.",
   "version": "0.1.1",
   "permissions": ["activeTab", "scripting", "storage"],
