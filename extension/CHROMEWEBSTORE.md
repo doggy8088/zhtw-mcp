@@ -1,7 +1,9 @@
 # Chrome Web Store Listing: 字正腔圓
 
-> Last Updated: 2026-11-05
-> Status: Submitted 2026-11-05, in review, auto-publish on approval.
+> Last Updated: 2026-11-06
+> Status: Published. Submitted 2026-11-05, review passed with auto-publish;
+> live listing verified 2026-11-06.
+> Store URL: https://chromewebstore.google.com/detail/ddlkbcghdkeicelpilkkbfkhdgdanelg
 > Extension ID: `ddlkbcghdkeicelpilkkbfkhdgdanelg`
 
 ## Store Listing
@@ -237,7 +239,7 @@ https://www.facebook.com/will.fans/
 
 | Version | Date | Changes | Status |
 |---------|------|---------|--------|
-| 0.1.0 | 2026-11-05 | First public release: page scan with findings marked in place, Base and Strict check strengths, spacing and UI-copy options, rule family switches, repeated-symbol handling for text fields, copyable fix prompt. | In Review |
+| 0.1.0 | 2026-11-05 | First public release: page scan with findings marked in place, Base and Strict check strengths, spacing and UI-copy options, rule family switches, repeated-symbol handling for text fields, copyable fix prompt. | Published |
 
 <!-- Status options: Draft | Submitted | In Review | Published | Rejected -->
 
