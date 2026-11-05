@@ -1,8 +1,9 @@
 # Chrome Web Store Listing: 字正腔圓
 
 > Last Updated: 2026-11-06
-> Status: Published. Submitted 2026-11-05, review passed with auto-publish;
-> live listing verified 2026-11-06.
+> Status: 0.1.2 submitted for review 2026-11-06 with auto-publish, pending.
+> 0.1.0 published 2026-11-06 (submitted 2026-11-05, review passed with
+> auto-publish); live listing verified 2026-11-06.
 > Store URL: https://chromewebstore.google.com/detail/ddlkbcghdkeicelpilkkbfkhdgdanelg
 > Extension ID: `ddlkbcghdkeicelpilkkbfkhdgdanelg`
 > Support URL (dashboard Website / Support URL): https://github.com/doggy8088/zhtw-mcp/issues
@@ -230,17 +231,18 @@ doggy.huang@gmail.com (the developer account email on file)
 
 **Support URL / Email** [RECOMMENDED]
 
-https://www.facebook.com/will.fans/
+https://github.com/doggy8088/zhtw-mcp/issues
 
 **Homepage URL** [RECOMMENDED]
 
-https://www.facebook.com/will.fans/
+https://github.com/doggy8088/zhtw-mcp/issues
 
 ## Version History
 
 | Version | Date | Changes | Status |
 |---------|------|---------|--------|
 | 0.1.0 | 2026-11-05 | First public release: page scan with findings marked in place, Base and Strict check strengths, spacing and UI-copy options, rule family switches, repeated-symbol handling for text fields, copyable fix prompt. | Published |
+| 0.1.2 | 2026-11-06 | Point the homepage and support URLs at GitHub Issues and add manifest homepage_url. The live description copy still carries the Facebook support line; switch it in the next release. | Submitted |
 
 <!-- Status options: Draft | Submitted | In Review | Published | Rejected -->
 
@@ -259,7 +261,7 @@ https://www.facebook.com/will.fans/
 ### Submission Readiness
 
 - [x] `manifest_version` is 3
-- [x] Version 0.1.0 in manifest.json, package.json and the ZIP name
+- [x] The same version in manifest.json, package.json and the ZIP name
 - [x] Store name matches manifest name (字正腔圓)
 - [x] Manifest description within 132 characters
 - [x] ZIP built by `scripts/package-store.sh`: no tests, no `node_modules`, no
@@ -269,7 +271,7 @@ https://www.facebook.com/will.fans/
 - [x] Store icon 128×128 real PNG; screenshots 1280×800 captured from the real UI
 - [x] Privacy policy live at https://www.duotify.com/PrivacyPolicy/
 - [x] Developer account and publisher display name (Will 保哥)
-- [x] Contact and support URLs (Facebook page as support and homepage)
+- [x] Contact and support URLs (GitHub Issues as support and homepage)
 - [x] Data disclosure form filled to match the Privacy & Data Use table: the nine
       categories answered No, the three certifications checked, remote code
       answered No (the WASM ships inside the package)
