@@ -5,6 +5,7 @@
 > live listing verified 2026-11-06.
 > Store URL: https://chromewebstore.google.com/detail/ddlkbcghdkeicelpilkkbfkhdgdanelg
 > Extension ID: `ddlkbcghdkeicelpilkkbfkhdgdanelg`
+> Support URL (dashboard Website / Support URL): https://github.com/doggy8088/zhtw-mcp/issues
 
 ## Store Listing
 
@@ -59,7 +60,7 @@
 • 儲存空間：只記住你在選項設定裡做的選擇，讓下次開啟時不用重設。
 
 支援
-問題回報與建議：TODO(填入支援信箱或 GitHub Issues 網址)
+問題回報與建議：https://github.com/doggy8088/zhtw-mcp/issues
 
 版本 0.1.0：首個公開版本。
 ```
@@ -95,7 +96,7 @@ PERMISSIONS
 • Storage: remembers your option choices so you do not reset them next time.
 
 SUPPORT
-Bug reports and suggestions: TODO(support email or GitHub Issues URL)
+Bug reports and suggestions: https://github.com/doggy8088/zhtw-mcp/issues
 
 Version 0.1.0: first public release.
 ```
